@@ -8,9 +8,9 @@ import java.util.stream.LongStream;
 import static java.lang.System.lineSeparator;
 import static java.lang.System.out;
 
-public class Day01 {
+public class Day02 {
 
-    public Day01() {
+    public Day02() {
         out.println(part1());
         out.println(part2());
     }
