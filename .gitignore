@@ -10,3 +10,4 @@ build
 *.ipr
 
 *.json
+.ipynb_checkpoints
