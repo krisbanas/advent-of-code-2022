@@ -15,7 +15,7 @@ public class Day02 {
         return FileHelper.loadStringList("Day2Input.txt")
                 .stream().map(s -> s.split(" "))
                 .map(i -> new Pair(i[0], i[1]))
-                .mapToInt(i -> getPointsForPair(i))
+                .mapToInt(this::getPointsForPair)
                 .sum();
     }
 
@@ -23,7 +23,7 @@ public class Day02 {
         return FileHelper.loadStringList("Day2Input.txt")
                 .stream().map(s -> s.split(" "))
                 .map(i -> new Pair(i[0], i[1]))
-                .mapToInt(i -> getPointsForPair2(i))
+                .mapToInt(this::getPointsForPair2)
                 .sum();
     }
 
@@ -80,6 +80,6 @@ public class Day02 {
             default -> 0;
         };
     }
-}
 
-record Pair(String left, String right) { }
+    record Pair(String left, String right) { }
+}

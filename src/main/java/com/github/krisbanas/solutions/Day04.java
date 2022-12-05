@@ -44,8 +44,8 @@ public class Day04 {
         Section secondSection = new Section(Integer.parseInt(secondElf.split("-")[0]), Integer.parseInt(secondElf.split("-")[1]));
         return new Sections(firstSection, secondSection);
     }
+
+    private record Section(int start, int end) {}
+
+    private record Sections(Section first, Section second) {}
 }
-
-record Section(int start, int end) {}
-
-record Sections(Section first, Section second) {}
