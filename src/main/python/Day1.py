@@ -1,4 +1,4 @@
-X = [l.strip() for l in open("../resources/Day01Input.txt")]
+X = [l.strip() for l in open("../resources/Day1Input.txt")]
 
 X = ('\n'.join(X)).split('\n\n')
 result = []

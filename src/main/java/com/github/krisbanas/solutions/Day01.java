@@ -24,7 +24,7 @@ public class Day01 {
     }
 
     private static LongStream getInput() {
-        return Arrays.stream(FileHelper.loadString("Day01Input.txt")
+        return Arrays.stream(FileHelper.loadString("Day1Input.txt")
                         .split(lineSeparator() + lineSeparator()))
                 .map(x -> x.split(lineSeparator()))
                 .mapToLong(x -> Arrays.stream(x).mapToLong(Long::valueOf).sum());
