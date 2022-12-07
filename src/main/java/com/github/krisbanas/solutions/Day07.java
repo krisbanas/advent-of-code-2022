@@ -22,7 +22,7 @@ public class Day07 {
     private Object part2() {
         File root = readInput();
 
-        List<File> directories = new ArrayList<>();
+        List<File> directories;
         directories = findDirectories(root);
         directories.sort(Comparator.comparingLong(a -> a.size()[0]));
 
@@ -35,7 +35,7 @@ public class Day07 {
 
     private long findDirsSize(File file) {
         if (file.files().size() == 0) return 0;
-        long result =  file.size()[0];
+        long result = file.size()[0];
         result += file.files().stream()
                 .mapToLong(this::findDirsSize)
                 .sum();
@@ -49,7 +49,6 @@ public class Day07 {
         file.files().forEach(f -> result.addAll(findDirectories(f)));
         return result;
     }
-
 
 
     private long findSmallDirsSize(File file) {
@@ -98,6 +97,7 @@ public class Day07 {
         root.size()[0] = countSize(root);
         return root;
     }
+
     private static long countSize(File file) {
         if (file.files().size() == 0) return file.size()[0];
         file.size()[0] = file.files().stream()
@@ -105,6 +105,7 @@ public class Day07 {
                 .sum();
         return file.size()[0];
     }
+
     private static Command getCommand(List<String> lines) {
         var cmdArray = Arrays.stream(lines.get(0).split(" "))
                 .map(String::strip)
@@ -113,14 +114,14 @@ public class Day07 {
         if (cmdArray.length < 2) return new Command(cmdArray[0], ".");
         return new Command(cmdArray[0], cmdArray[1]);
     }
-}
 
-record File(String name, File parent, List<File> files, long[] size) {
-    @Override
-    public String toString() {
-        return name;
+    record File(String name, File parent, List<File> files, long[] size) {
+        @Override
+        public String toString() {
+            return name;
+        }
     }
-}
 
-record Command(String type, String parameter) {
+    record Command(String type, String parameter) {
+    }
 }
