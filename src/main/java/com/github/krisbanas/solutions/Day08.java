@@ -11,7 +11,7 @@ public class Day08 {
         out.println(part1());
         out.println(part2());
     }
-
+ // TODO ugly af
     public Object part1() {
         var xd = FileHelper.loadStringList("Day8Input.txt");
         Set<Tree> set = new HashSet<>();
@@ -122,7 +122,7 @@ public class Day08 {
         // pointer
         int pointer = row - 1;
         while (pointer >= 0) { //up
-            if (biggestSoFar > trees[pointer][col]) break;
+            if (biggestSoFar >= tree) break;
             biggestSoFar = trees[pointer][col];
             pointer--;
             score++;
@@ -133,7 +133,7 @@ public class Day08 {
         biggestSoFar = 0;
         pointer = row + 1;
         while (pointer <= trees[row].length - 1) { //down
-            if (biggestSoFar > trees[pointer][col]) break;
+            if (biggestSoFar >= tree) break;
             biggestSoFar = trees[pointer][col];
             pointer++;
             score++;
@@ -144,7 +144,7 @@ public class Day08 {
         biggestSoFar = 0;
         pointer = col - 1;
         while (pointer >= 0) { //left
-            if (biggestSoFar > trees[row][pointer]) break;
+            if (biggestSoFar >=tree) break;
             biggestSoFar =trees[row][pointer];
             pointer--;
             score++;
@@ -155,7 +155,7 @@ public class Day08 {
         biggestSoFar = 0;
         pointer = col + 1;
         while (pointer <= trees.length - 1) { //down
-            if (biggestSoFar > trees[row][pointer]) break;
+            if (biggestSoFar >= tree) break;
             biggestSoFar = trees[row][pointer];
             pointer++;
             score++;
