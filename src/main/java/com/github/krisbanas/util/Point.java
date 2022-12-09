@@ -1,4 +1,4 @@
 package com.github.krisbanas.util;
 
-public record Point(int x, int y) {
+public record Point(int row, int col) {
 }
