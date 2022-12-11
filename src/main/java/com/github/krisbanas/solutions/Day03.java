@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class Day03 {
     }
 
     public Object part1() {
-        return FileHelper.loadStringList("Day3Input.txt").stream()
+        return FileReader.readAsStringList("Day3Input.txt").stream()
                 .map(this::findDuplicate)
                 .mapToInt(x -> Character.toLowerCase(x) - 'a' + (Character.isUpperCase(x) ? 26 : 0) + 1)
                 .sum();
@@ -22,7 +22,7 @@ public class Day03 {
     }
 
     private Object part2() {
-        List<String> elves = FileHelper.loadStringList("Day3Input.txt");
+        List<String> elves = FileReader.readAsStringList("Day3Input.txt");
         List<List<String>> grouped = new ArrayList<>();
         List<String> current = null;
         for (int i = 0; i < elves.size(); i++) {

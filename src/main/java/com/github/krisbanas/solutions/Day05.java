@@ -1,8 +1,11 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static java.lang.System.out;
@@ -42,14 +45,19 @@ public class Day05 {
     }
 
     private static List<Stack<String>> readStacks() {
-        var xd = FileHelper.loadString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
+        var xd = FileReader.readAsString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
         var inputs = Arrays.stream(xd[0].split(System.lineSeparator()))
                 .map(x -> x.replace("[", " "))
                 .map(x -> x.replace("]", " "))
                 .map(x -> x.replaceAll("^ ", ""))
                 .map(x -> x.replaceAll(" $", ""))
                 .toList();
-        var max = Arrays.stream(inputs.get(inputs.size() - 1).replace("[a-zA-z]", "").split(" +")).filter(x -> !x.isEmpty()).mapToInt(Integer::parseInt).max().getAsInt();
+        var max = Arrays.stream(inputs.get(inputs.size() - 1)
+                .replace("[a-zA-z]", "")
+                .split(" +"))
+                .filter(x -> !x.isEmpty())
+                .mapToInt(Integer::parseInt)
+                .max().getAsInt();
         List<Stack<String>> stacks = new ArrayList<>();
         for (int i = 0; i < max; i++) {
             stacks.add(new Stack<>());
@@ -67,13 +75,13 @@ public class Day05 {
     }
 
     private static List<Command> readCommands() {
-        var input = FileHelper.loadString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
+        var input = FileReader.readAsString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
         return Arrays.stream(input[1].split(System.lineSeparator()))
                 .map(x -> x.replaceAll("[a-zA-Z ]", " "))
                 .map(x -> x.trim().replaceAll(" +", " ").split(" "))
                 .map(x -> new Command(Integer.parseInt(x[0]), Integer.parseInt(x[1]) - 1, Integer.parseInt(x[2]) - 1))
                 .toList();
     }
+
     record Command(int count, int from, int to) { }
 }
-

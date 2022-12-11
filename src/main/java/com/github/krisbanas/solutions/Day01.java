@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import java.util.Arrays;
 import java.util.stream.LongStream;
@@ -24,7 +24,7 @@ public class Day01 {
     }
 
     private static LongStream getInput() {
-        return Arrays.stream(FileHelper.loadString("Day1Input.txt")
+        return Arrays.stream(FileReader.readAsString("Day1Input.txt")
                         .split(lineSeparator() + lineSeparator()))
                 .map(x -> x.split(lineSeparator()))
                 .mapToLong(x -> Arrays.stream(x).mapToLong(Long::valueOf).sum());

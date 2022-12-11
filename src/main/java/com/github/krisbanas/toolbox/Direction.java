@@ -1,6 +1,5 @@
-package com.github.krisbanas.util;
+package com.github.krisbanas.toolbox;
 
-import java.awt.*;
 import java.util.Arrays;
 
 import static java.lang.Math.abs;
@@ -36,15 +35,15 @@ public enum Direction {
     }
 
     public static Direction getByMove(Point from, Point to) {
-        if (to.x > from.x) return EAST;
-        else if (to.x < from.x) return WEST;
-        else if (to.y > from.y) return SOUTH;
-        else if (to.y < from.y) return NORTH;
+        if (to.row() > from.row()) return EAST;
+        else if (to.row() < from.row()) return WEST;
+        else if (to.col() > from.col()) return SOUTH;
+        else if (to.col() < from.col()) return NORTH;
         else return CENTER;
     }
 
     public static Point turn(Point w, boolean b) {
-        return b ? new Point(-w.y, w.x) : new Point(w.y, -w.x);
+        return b ? new Point(-w.col(), w.row()) : new Point(w.col(), -w.row());
     }
 
     public static Point turnDegrees(Point w, int distance, boolean b) {
@@ -77,43 +76,43 @@ public enum Direction {
 
     public Point move(Point currentLocation, int amount) {
         return switch (this) {
-            case SOUTH -> new Point(currentLocation.x, currentLocation.y + amount);
-            case NORTH -> new Point(currentLocation.x, currentLocation.y - amount);
-            case EAST -> new Point(currentLocation.x + amount, currentLocation.y);
-            case WEST -> new Point(currentLocation.x - amount, currentLocation.y);
-            case SOUTHWEST -> new Point(currentLocation.x - amount, currentLocation.y + amount);
-            case NORTHEAST -> new Point(currentLocation.x + amount, currentLocation.y - amount);
-            case SOUTHEAST -> new Point(currentLocation.x + amount, currentLocation.y + amount);
-            case NORTHWEST -> new Point(currentLocation.x - amount, currentLocation.y - amount);
-            case CENTER -> new Point(currentLocation.x, currentLocation.y);
+            case SOUTH -> new Point(currentLocation.row(), currentLocation.col() + amount);
+            case NORTH -> new Point(currentLocation.row(), currentLocation.col() - amount);
+            case EAST -> new Point(currentLocation.row() + amount, currentLocation.col());
+            case WEST -> new Point(currentLocation.row() - amount, currentLocation.col());
+            case SOUTHWEST -> new Point(currentLocation.row() - amount, currentLocation.col() + amount);
+            case NORTHEAST -> new Point(currentLocation.row() + amount, currentLocation.col() - amount);
+            case SOUTHEAST -> new Point(currentLocation.row() + amount, currentLocation.col() + amount);
+            case NORTHWEST -> new Point(currentLocation.row() - amount, currentLocation.col() - amount);
+            case CENTER -> new Point(currentLocation.row(), currentLocation.col());
         };
     }
 
     public Point moveFix(Point currentLocation, int amount) {
         return switch (this) {
-            case SOUTH -> new Point(currentLocation.x, currentLocation.y + amount);
-            case NORTH -> new Point(currentLocation.x, currentLocation.y - amount);
-            case EAST -> new Point(currentLocation.x - amount, currentLocation.y);
-            case WEST -> new Point(currentLocation.x + amount, currentLocation.y);
-            case SOUTHWEST -> new Point(currentLocation.x + amount, currentLocation.y + amount);
-            case NORTHEAST -> new Point(currentLocation.x - amount, currentLocation.y - amount);
-            case SOUTHEAST -> new Point(currentLocation.x - amount, currentLocation.y + amount);
-            case NORTHWEST -> new Point(currentLocation.x + amount, currentLocation.y - amount);
-            case CENTER -> new Point(currentLocation.x, currentLocation.y);
+            case SOUTH -> new Point(currentLocation.row(), currentLocation.col() + amount);
+            case NORTH -> new Point(currentLocation.row(), currentLocation.col() - amount);
+            case EAST -> new Point(currentLocation.row() - amount, currentLocation.col());
+            case WEST -> new Point(currentLocation.row() + amount, currentLocation.col());
+            case SOUTHWEST -> new Point(currentLocation.row() + amount, currentLocation.col() + amount);
+            case NORTHEAST -> new Point(currentLocation.row() - amount, currentLocation.col() - amount);
+            case SOUTHEAST -> new Point(currentLocation.row() - amount, currentLocation.col() + amount);
+            case NORTHWEST -> new Point(currentLocation.row() + amount, currentLocation.col() - amount);
+            case CENTER -> new Point(currentLocation.row(), currentLocation.col());
         };
     }
 
     public char getInGrid(char[][] grid, Point p, char none) {
-        if (p.x >= 0 && p.x < grid.length && p.y >= 0 && p.y < grid[0].length) {
-            return grid[p.x][p.y];
+        if (p.row() >= 0 && p.row() < grid.length && p.col() >= 0 && p.col() < grid[0].length) {
+            return grid[p.row()][p.col()];
         }
         return none;
     }
 
     public long getInGrid(long[][] grid, Point p, int none) {
         p = this.move(p);
-        if (p.x >= 0 && p.x < grid.length && p.y >= 0 && p.y < grid[0].length) {
-            return grid[p.x][p.y];
+        if (p.row() >= 0 && p.row() < grid.length && p.col() >= 0 && p.col() < grid[0].length) {
+            return grid[p.row()][p.col()];
         }
         return none;
     }

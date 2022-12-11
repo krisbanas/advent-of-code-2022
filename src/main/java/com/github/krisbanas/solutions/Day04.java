@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import static java.lang.System.out;
 
@@ -12,7 +12,7 @@ public class Day04 {
     }
 
     public Object part1() {
-        var input = FileHelper.loadStringList("Day4Input.txt");
+        var input = FileReader.readAsStringList("Day4Input.txt");
         int result = 0;
         for (String section : input) {
             Sections sections = createSections(section);
@@ -25,7 +25,7 @@ public class Day04 {
     }
 
     private Object part2() {
-        var input = FileHelper.loadStringList("Day4Input.txt");
+        var input = FileReader.readAsStringList("Day4Input.txt");
         int result = 0;
         for (String section : input) {
             Sections sections = createSections(section);

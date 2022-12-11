@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import java.util.*;
 
@@ -14,14 +14,11 @@ public class Day07 {
 
     public Object part1() {
         File root = readInput();
-
-        long counter = findSmallDirsSize(root);
-        return counter;
+        return findSmallDirsSize(root);
     }
 
     private Object part2() {
         File root = readInput();
-
         List<File> directories;
         directories = findDirectories(root);
         directories.sort(Comparator.comparingLong(a -> a.size()[0]));
@@ -33,11 +30,39 @@ public class Day07 {
         return null;
     }
 
-    private long findDirsSize(File file) {
+    private static File readInput() {
+        var xd = FileReader.readAsString("Day7Input.txt");
+        var split = xd.split("\\$ ");
+        File root = new File("/", null, new ArrayList<>(), new long[1]);
+        File pwd = root;
+
+        for (String entry : split) {
+            if (entry.isBlank() || entry.equals("cd /\n")) continue;
+            List<String> lines = new ArrayList<>(Arrays.stream(entry.split("\n")).toList());
+            var command = getCommand(lines);
+            if (command.type().equals("cd")) {
+                pwd = command.parameter().equals("..")
+                        ? pwd.parent()
+                        : pwd.files().stream().filter(x -> x.name().equals(command.parameter())).findFirst().get();
+            } else {
+                lines.remove(0);
+                for (String fileLine : lines) {
+                    String[] fileLineSplit = fileLine.trim().split(" ");
+                    long[] size = fileLineSplit[0].equals("dir") ? new long[1] : new long[]{Long.parseLong(fileLineSplit[0])};
+                    File newDir = new File(fileLineSplit[1], pwd, new ArrayList<>(), size);
+                    pwd.files().add(newDir);
+                }
+            }
+        }
+        root.size()[0] = countSize(root);
+        return root;
+    }
+
+    private long findSmallDirsSize(File file) {
         if (file.files().size() == 0) return 0;
-        long result = file.size()[0];
+        long result = file.size()[0] <= 100000 ? file.size()[0] : 0;
         result += file.files().stream()
-                .mapToLong(this::findDirsSize)
+                .mapToLong(this::findSmallDirsSize)
                 .sum();
         return result;
     }
@@ -50,60 +75,10 @@ public class Day07 {
         return result;
     }
 
-
-    private long findSmallDirsSize(File file) {
-        if (file.files().size() == 0) return 0;
-        long result = file.size()[0] <= 100000 ? file.size()[0] : 0;
-        result += file.files().stream()
-                .mapToLong(this::findSmallDirsSize)
-                .sum();
-        return result;
-    }
-
-    private static File readInput() {
-        var xd = FileHelper.loadString("Day7Input.txt");
-        var split = xd.split("\\$");
-        File root = null;
-        File pwd = null;
-
-        for (String entry : split) {
-            if (entry.isBlank()) continue;
-            List<String> lines = new ArrayList<>(Arrays.stream(entry.split("\n")).toList());
-            var command = getCommand(lines);
-            if (command.type().equals("cd")) {
-                if (command.parameter().equals("/")) {
-                    root = new File("/", null, new ArrayList<>(), new long[1]);
-                    pwd = root;
-                } else if (command.parameter().equals("..")) {
-                    if (pwd == root) continue;
-                    pwd = pwd.parent();
-                } else {
-                    pwd = pwd.files().stream().filter(x -> x.name().equals(command.parameter())).findFirst().get();
-                }
-            } else if (command.type().equals("ls")) {
-                lines.remove(0);
-                for (String fileLine : lines) {
-                    String[] fileLineSplit = fileLine.trim().split(" ");
-                    File newDir;
-                    if (fileLineSplit[0].equals("dir")) {
-                        newDir = new File(fileLineSplit[1], pwd, new ArrayList<>(), new long[1]);
-                    } else {
-                        newDir = new File(fileLineSplit[1], pwd, new ArrayList<>(), new long[]{Long.parseLong(fileLineSplit[0])});
-                    }
-                    pwd.files().add(newDir);
-                }
-            }
-        }
-        root.size()[0] = countSize(root);
-        return root;
-    }
-
     private static long countSize(File file) {
-        if (file.files().size() == 0) return file.size()[0];
-        file.size()[0] = file.files().stream()
+        return file.size()[0] = file.files().stream()
                 .mapToLong(Day07::countSize)
-                .sum();
-        return file.size()[0];
+                .sum() + file.size()[0];
     }
 
     private static Command getCommand(List<String> lines) {
@@ -119,6 +94,15 @@ public class Day07 {
         @Override
         public String toString() {
             return name;
+        }
+
+        @Override
+        public File parent() {
+            return "/".equals(name) ? this : parent;
+        }
+
+        public boolean isFile() {
+            return files.isEmpty();
         }
     }
 

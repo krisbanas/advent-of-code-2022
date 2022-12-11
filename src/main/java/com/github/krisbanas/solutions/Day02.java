@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import static java.lang.System.out;
 
@@ -12,7 +12,7 @@ public class Day02 {
     }
 
     public int part1() {
-        return FileHelper.loadStringList("Day2Input.txt")
+        return FileReader.readAsStringList("Day2Input.txt")
                 .stream().map(s -> s.split(" "))
                 .map(i -> new Pair(i[0], i[1]))
                 .mapToInt(this::getPointsForPair)
@@ -20,7 +20,7 @@ public class Day02 {
     }
 
     private Object part2() {
-        return FileHelper.loadStringList("Day2Input.txt")
+        return FileReader.readAsStringList("Day2Input.txt")
                 .stream().map(s -> s.split(" "))
                 .map(i -> new Pair(i[0], i[1]))
                 .mapToInt(this::getPointsForPair2)

@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileHelper;
+import com.github.krisbanas.util.FileReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class Day10 {
     }
 
     public Object part1() {
-        var input = FileHelper.loadStringList("Day10Input.txt");
+        var input = FileReader.readAsStringList("Day10Input.txt");
         int cycleEnd = 1;
         int fast = 2;
         int cumulated = 1;
@@ -55,7 +55,7 @@ public class Day10 {
     String [][] matrix = new String[6][40];
 
     private Object part2() {
-        var input = FileHelper.loadStringList("Day10Input.txt");
+        var input = FileReader.readAsStringList("Day10Input.txt");
         int fast = 2;
         int cumulated = 1;
         int result = 0;
