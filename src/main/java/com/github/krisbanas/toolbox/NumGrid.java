@@ -12,6 +12,12 @@ public class NumGrid {
      */
     public long[][] grid;
 
+    public NumGrid(String stringToParse, String lineDelimiter, String elementDelimiter, boolean fromChars) {
+        grid = Arrays.stream(stringToParse.split(lineDelimiter))
+                .map(line -> Arrays.stream(line.split(elementDelimiter)).map(String::trim).filter(e -> !e.isEmpty()).mapToLong(x -> x.charAt(0) - 'a').toArray())
+                .toArray(long[][]::new);
+    }
+
     public NumGrid(String stringToParse, String lineDelimiter, String elementDelimiter) {
         grid = Arrays.stream(stringToParse.split(lineDelimiter))
                 .map(line -> Arrays.stream(line.split(elementDelimiter)).map(String::trim).filter(e -> !e.isEmpty()).mapToLong(Long::parseLong).toArray())
@@ -41,6 +47,10 @@ public class NumGrid {
 
     public long getValue(Point p) {
         return isInGrid(p) ? grid[p.row()][p.col()] : -1;
+    }
+
+    public void setValue(Point p, long n) {
+        if (isInGrid(p)) grid[p.row()][p.col()] = n;
     }
 
     public long getValue(Point p, int ifNot) {
