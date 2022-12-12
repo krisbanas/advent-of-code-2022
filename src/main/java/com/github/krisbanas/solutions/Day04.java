@@ -1,6 +1,6 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.util.FileReader;
+import com.github.krisbanas.toolbox.FileReader;
 
 import static java.lang.System.out;
 

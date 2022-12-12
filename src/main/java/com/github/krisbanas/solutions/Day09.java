@@ -2,7 +2,7 @@ package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.Direction;
 import com.github.krisbanas.toolbox.Point;
-import com.github.krisbanas.util.FileReader;
+import com.github.krisbanas.toolbox.FileReader;
 
 import java.util.*;
 import java.util.stream.IntStream;

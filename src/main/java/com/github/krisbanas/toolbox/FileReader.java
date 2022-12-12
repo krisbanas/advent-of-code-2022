@@ -1,4 +1,4 @@
-package com.github.krisbanas.util;
+package com.github.krisbanas.toolbox;
 
 import lombok.SneakyThrows;
 
