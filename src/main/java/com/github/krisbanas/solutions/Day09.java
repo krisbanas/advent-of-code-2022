@@ -26,13 +26,13 @@ public class Day09 {
         return visited.size();
     }
 
-    private boolean shouldMove(Point head, Point tail) {
-        return Math.pow(head.row() - tail.row(), 2) + Math.pow(head.col() - tail.col(), 2) > 2;
-    }
-
     private Object part2() {
         Set<Point> visited = moveRope(9);
         return visited.size();
+    }
+
+    private boolean shouldMove(Point head, Point tail) {
+        return Math.pow(head.row() - tail.row(), 2) + Math.pow(head.col() - tail.col(), 2) > 2;
     }
 
     private Set<Point> moveRope(int ropeSize) {
