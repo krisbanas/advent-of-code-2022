@@ -1,4 +1,3 @@
 INPUT = "../resources/Day7Input.txt"
 
-# Number two:
-X = [lines.strip() for lines in open(INPUT)]
+lines = [x.strip() for x in open(INPUT)]

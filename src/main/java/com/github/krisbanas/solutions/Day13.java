@@ -15,41 +15,60 @@ public class Day13 {
 
     public Object part1() {
         var input = FileReader.readAsString("Day13Input.txt").trim().split("\n\n");
-        for (String entry : input) {
+        int counter = 0;
+        for (int i = 0; i < input.length; i++) {
+            String entry = input[i];
             var left = entry.split("\n")[0].trim();
             var right = entry.split("\n")[1].trim();
 
-            List<Object> leftThing = toObjectList(left);
             List<Object> rightThing = toObjectList(right);
+            List<Object> leftThing = toObjectList(left);
 
             boolean isCorrect = compare(leftThing, rightThing);
+            if (isCorrect) {
+                counter++;
+                System.out.println("Correct index: " + (int) (i + 1));
+            }
+
         }
 
 
-        return null;
+        return counter;
     }
 
     private List<Object> toObjectList(String input) {
         List<Object> result = new ArrayList<>();
+        input = input.replaceAll("^,", "").replaceAll(",$", "");
         if (input.equals("")) return result;
         if (!input.contains("[") && !input.contains("]")) return Arrays.stream(input.split(",")).map(Integer::valueOf).map(x -> (Object) x).toList();
         int level = 0;
         List<Integer> milestones = new ArrayList<>();
-        milestones.add(0);
-        milestones.add(input.length() - 1);
+
+        if (input.startsWith("[")) milestones.add(0);
+        if (input.endsWith("]")) milestones.add(input.length());
+        if (input.startsWith("[") && input.endsWith("]")) {
+            milestones.add(1);
+            milestones.add(input.length()-1);
+        }
+
         char[] charArray = input.toCharArray();
         for (int i = 0; i < charArray.length; i++) {
             char c = charArray[i];
-            if (c == '[') level++;
-            else if (c == ']') level--;
-            else if (c == ',' && level == 0) milestones.add(i);
+            if (c == '[') {
+                level++;
+            } else if (c == ']') {
+                level--;
+
+            } else if (c == ',') {
+                if (level == 0) milestones.add(i);
+            }
         }
-        milestones.sort(Integer::compareTo);
-        for (int i = 0; i < milestones.size() - 1; i++) {
-            int start = milestones.get(i) + 1;
-//            if (input.charAt(start) == '[')
-            int end = milestones.get(i + 1) - 1;
+        milestones = milestones.stream().sorted(Integer::compareTo).toList();
+        for (int i = 0; i < milestones.size() - 1; i ++) {
+            int start = milestones.get(i);
+            int end = milestones.get(i + 1);
             String next = input.substring(start, end);
+            if (next.equals("[") || next.equals("]")) continue;
             result.add(toObjectList(next));
         }
         return result;
@@ -78,27 +97,6 @@ public class Day13 {
     public Object part2() {
         return null;
     }
-
-//    private static List<LevelInteger> toLevelList(String left) {
-//        List<LevelInteger> leftList = new ArrayList<>();
-//        int pointer = 0;
-//        int level = 0;
-//        String[] leftArr = left.split(" +");
-//        while (pointer < leftArr.length) {
-//            String next = leftArr[pointer];
-//            switch (next) {
-//                case "[" -> level++;
-//                case "]" -> level--;
-//                case ",", "" -> {
-//                    pointer++;
-//                    continue;
-//                }
-//                default -> leftList.add(new LevelInteger(level, Integer.parseInt(next))); // digit
-//            }
-//            pointer++;
-//        }
-//        return leftList;
-//    }
 
     record LevelInteger(int level, int value) {
     }
