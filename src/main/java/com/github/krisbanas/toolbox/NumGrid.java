@@ -28,6 +28,14 @@ public class NumGrid {
         this(stringToParse, System.lineSeparator(), "");
     }
 
+    private NumGrid(int row, int col) {
+        grid = new long[row][col];
+    }
+
+    public static NumGrid ofSize(int row, int col) {
+        return new NumGrid(row, col);
+    }
+
     public Set<Point> edgePoints() {
         Set<Point> edgePoints = new HashSet<>();
         IntStream.range(0, grid.length).forEach(i -> {
@@ -59,5 +67,24 @@ public class NumGrid {
 
     public Stream<Point> stream() {
         return IntStream.range(0, grid.length).boxed().flatMap(row -> IntStream.range(0, grid[row].length).mapToObj(col -> new Point(row, col)));
+    }
+
+    public void printGrid() {
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                System.out.print(grid[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    public int count(int target) {
+        int result = 0;
+        for (long[] longs : grid) {
+            for (int j = 0; j < grid[0].length; j++) {
+                result += longs[j] == target ? 1 : 0;
+            }
+        }
+        return result;
     }
 }
