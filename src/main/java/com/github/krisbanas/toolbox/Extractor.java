@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class Extractor {
     public static String ints(String input) {
-        return input.replaceAll("[^\\d,.]", "");
+        return input.replaceAll("[^\\d,.-]", "");
     }
 
     public static <T> List<T> getColumn(T[][] input, int columnIndex) {
