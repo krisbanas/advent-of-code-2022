@@ -31,12 +31,28 @@ public class Day15 {
         var takenPoints = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).toList();
 
         int count = 0;
-        for (long i = left; i <= right; i++) {
+//
+//        long OFFSET = 100000;
+//        for (long i = left - OFFSET; i <= right + OFFSET; i++) {
+//            Point pointer = new Point(2000000, i);
+//            if (takenPoints.contains(pointer)) continue;
+//            if (pairs.stream().anyMatch(x -> isBlockedBy(pointer, x))) {
+//                count++;
+//            }
+//            else {
+//                System.out.println("no");
+//            }
+//        }
+
+
+        long OFFSET = 10;
+        for (long i = left - 10; i <= right + 10; i++) {
             Point pointer = new Point(10, i);
             if (takenPoints.contains(pointer)) continue;
             if (pairs.stream().anyMatch(x -> isBlockedBy(pointer, x))) count++;
         }
-        long OFFSET = 15;
+
+
         for (long i = top - OFFSET; i < bot + OFFSET; i++) {
             System.out.printf("%2d ", i);
 
@@ -44,7 +60,7 @@ public class Day15 {
                 Point p = new Point(i, j);
                 if (takenPoints.contains(p)) System.out.print("B");
                 else if (pairs.stream().anyMatch(x -> isBlockedBy(p, x))) System.out.print("#");
-//                else if (isBlockedBy(p, new Pair(new Point(7, 8), new Point(10, 2), getInfluence(new Point(7, 8), new Point(10, 2))))) System.out.print("#");
+                else if (isBlockedBy(p, new Pair(new Point(7, 8), new Point(10, 2), getInfluence(new Point(7, 8), new Point(10, 2))))) System.out.print("#");
                 else System.out.print(".");
             }
             System.out.println();
