@@ -1,9 +1,7 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.toolbox.Extractor;
+
 import com.github.krisbanas.toolbox.FileReader;
-import com.github.krisbanas.toolbox.NumGrid;
-import com.github.krisbanas.toolbox.Point;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,19 +17,40 @@ public class Day15 {
     }
 
     public Object part1() {
-        var input = Arrays.stream(FileReader.readAsString("Day15Input.txt").trim().split("\n"))
+        var pairs = Arrays.stream(FileReader.readAsString("Day15Input.txt").trim().split("\n"))
                 .map(x -> x.split("[= ,:]"))
-                .map(x -> new Pair(new Point(Integer.parseInt(x[3]), Integer.parseInt(x[6])), new Point(Integer.parseInt(x[13]), Integer.parseInt(x[16])),
-                        getInfluence(new Point(Integer.parseInt(x[3]), Integer.parseInt(x[6])), new Point(Integer.parseInt(x[13]), Integer.parseInt(x[16])))))
+                .map(x -> new Pair(new Point(Integer.parseInt(x[6]), Integer.parseInt(x[3])), new Point(Integer.parseInt(x[16]), Integer.parseInt(x[13])),
+                        getInfluence(new Point(Integer.parseInt(x[6]), Integer.parseInt(x[3])), new Point(Integer.parseInt(x[16]), Integer.parseInt(x[13])))))
                 .toList();
 
-//        List<Point> sensors = input.stream().map(x -> x.sensor).toList();
-        int left = input.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToInt(x -> x.row()).min().getAsInt();
-        int right = input.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToInt(x -> x.row()).max().getAsInt();
-        for (int i = left; i <= right; i++) {
+        long left = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToLong(Point::col).min().getAsLong();
+        long right = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToLong(Point::col).max().getAsLong();
+        long top = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToLong(Point::row).min().getAsLong();
+        long bot = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).mapToLong(Point::row).max().getAsLong();
 
+        var takenPoints = pairs.stream().map(x -> List.of(x.sensor, x.bacon)).flatMap(Collection::stream).toList();
+
+        int count = 0;
+        for (long i = left; i <= right; i++) {
+            Point pointer = new Point(10, i);
+            if (takenPoints.contains(pointer)) continue;
+            if (pairs.stream().anyMatch(x -> isBlockedBy(pointer, x))) count++;
         }
-        return null;
+        long OFFSET = 15;
+        for (long i = top - OFFSET; i < bot + OFFSET; i++) {
+            System.out.printf("%2d ", i);
+
+            for (long j = left - OFFSET; j < right + OFFSET; j++) {
+                Point p = new Point(i, j);
+                if (takenPoints.contains(p)) System.out.print("B");
+                else if (pairs.stream().anyMatch(x -> isBlockedBy(p, x))) System.out.print("#");
+//                else if (isBlockedBy(p, new Pair(new Point(7, 8), new Point(10, 2), getInfluence(new Point(7, 8), new Point(10, 2))))) System.out.print("#");
+                else System.out.print(".");
+            }
+            System.out.println();
+        }
+
+        return count;
     }
 
     public Object part2() {
@@ -47,6 +66,11 @@ public class Day15 {
     }
 
     public static double getInfluence(Point a, Point b) {
-        return Math.sqrt(Math.pow(a.row() - b.row(), 2) + Math.pow(a.col() - b.col(), 2));
+        return (Math.abs(a.row() - b.row()) + Math.abs(a.col() - b.col()));
+    }
+
+    record Point(long row, long col) {
+
     }
 }
+
