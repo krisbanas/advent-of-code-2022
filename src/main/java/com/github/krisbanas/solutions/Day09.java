@@ -1,81 +1,100 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.toolbox.Direction;
-import com.github.krisbanas.toolbox.Point;
 import com.github.krisbanas.toolbox.FileReader;
 
 import java.util.*;
-import java.util.stream.IntStream;
-
-import static java.lang.System.out;
 
 public class Day09 {
-    private final List<Move> moves;
 
     public Day09() {
-        moves = FileReader.readAsStringList("Day9Input.txt")
-                .stream().map(x -> x.split(" "))
-                .map(x -> new Move(x[0], Integer.parseInt(x[1])))
-                .toList();
-        out.println(part1());
-        out.println(part2());
+        System.out.println(part1());
+        System.out.println(part2());
     }
 
     public Object part1() {
-        Set<Point> visited = moveRope(1);
-        return visited.size();
+        String input = FileReader.readAsString("Day9Input.txt");
+        List<Integer> disk = new ArrayList<>();
+        int id = 0;
+
+        for (int pointer = 0; pointer < input.length(); pointer += 2) {
+            int blockLen = Character.digit(input.charAt(pointer), 10);
+            for (int i = 0; i < blockLen; i++) disk.add(id);
+            int emptyLen = 0;
+            if (pointer + 1 < input.length()) {
+                emptyLen = Character.digit(input.charAt(pointer + 1), 10);
+            }
+            for (int i = 0; i < emptyLen; i++) disk.add(-1);
+            id++;
+        }
+
+        int left = 0;
+        while (disk.get(left) != -1) left++;
+        int right = disk.size() - 1;
+        while (disk.get(right) == -1) right--;
+
+        while (left < right) {
+            disk.set(left, disk.get(right));
+            disk.set(right, -1);
+            while (disk.get(left) != -1) left++;
+            while (disk.get(right) == -1) right--;
+        }
+
+        long result = 0;
+        for (int i = 0; i < disk.size() && disk.get(i) != -1; i++) {
+            result += (long) i * disk.get(i);
+        }
+        return result;
     }
 
-    private Object part2() {
-        Set<Point> visited = moveRope(9);
-        return visited.size();
-    }
+    Map<Integer, Integer> blockLengths = new HashMap<>();
+    Map<Integer, Integer> emptyLengths = new HashMap<>();
 
-    private boolean shouldMove(Point head, Point tail) {
-        return Math.pow(head.row() - tail.row(), 2) + Math.pow(head.col() - tail.col(), 2) > 2;
-    }
 
-    private Set<Point> moveRope(int ropeSize) {
-        Point head = new Point(0, 0);
-        List<Point> rope = new ArrayList<>(IntStream.iterate(0, i -> i + 1).limit(ropeSize + 1).mapToObj(i -> new Point(0, 0)).toList());
-        rope.set(0, head);
-        Set<Point> visited = new HashSet<>();
+    public Object part2() {
+        String input = FileReader.readAsString("Day9Input.txt");
+        List<Integer> disk = new ArrayList<>();
+        int id = 0;
 
-        for (Move m : moves) {
-            Direction dir = getDirectionByLetter(m.dir);
-            for (int i = 0; i < m.length; i++) {
-                head = dir.move(head);
-                rope.set(0, head);
+        for (int pointer = 0; pointer < input.length(); pointer += 2) {
+            int blockLen = Character.digit(input.charAt(pointer), 10);
+            blockLengths.put(disk.size(), blockLen);
+            for (int i = 0; i < blockLen; i++) disk.add(id);
+            int emptyLen = 0;
+            if (pointer + 1 < input.length()) {
+                emptyLen = Character.digit(input.charAt(pointer + 1), 10);
+                emptyLengths.put(disk.size(), emptyLen);
+            }
+            for (int i = 0; i < emptyLen; i++) disk.add(-1);
+            id++;
+        }
 
-                for (int j = 0; j < rope.size() - 1; j++) {
-                    Point pulling = rope.get(j);
-                    Point follower = rope.get(j + 1);
-                    Point newPoint = moveFollower(pulling, follower);
-                    rope.set(j + 1, newPoint);
+        List<Integer> sorted = blockLengths.keySet().stream().sorted(Comparator.comparingInt(x -> -x)).toList();
+        List<Integer> emptySorted = emptyLengths.keySet().stream().sorted(Comparator.comparingInt(x -> x)).toList();
+        outer:
+        for (int blockLocation : sorted) { // try once
+            int blockLen = blockLengths.get(blockLocation);
+            for (int emptyLocation : emptySorted) {
+                int emptylen = emptyLengths.getOrDefault(emptyLocation, 0);
+                if (emptylen >= blockLen) {
+                    for(int i=0; i < blockLen; i++) {
+                        disk.set(emptyLocation + i, disk.get(blockLocation + i));
+                        disk.set(blockLocation + i, -1);
+                    }
+                    emptyLengths.remove(emptyLocation);
+                    if (emptylen - blockLen > 0) {
+                        emptyLengths.put(emptyLocation + blockLen, emptylen - blockLen);
+                        emptySorted = emptyLengths.keySet().stream().sorted(Comparator.comparingInt(x -> x)).toList();
+                    }
+                    continue outer;
                 }
-
-                visited.add(rope.get(ropeSize));
             }
         }
-        return visited;
+        System.out.println(Arrays.toString(disk.toArray()));
+        long result = 0;
+        for (int i = 0; i < disk.size(); i++) {
+            if (disk.get(i) == -1) continue;
+            result += (long) i * disk.get(i);
+        }
+        return result;
     }
-
-    private Direction getDirectionByLetter(String letter) {
-        return switch (letter) {
-            case "L" -> Direction.WEST;
-            case "R" -> Direction.EAST;
-            case "U" -> Direction.NORTH;
-            case "D" -> Direction.SOUTH;
-            default -> Direction.CENTER;
-        };
-    }
-
-    private Point moveFollower(Point target, Point follower) {
-        if (target.equals(follower)) return follower;
-        if (!shouldMove(target, follower)) return follower;
-        Direction directionToTarget = follower.findDirectionToTarget(target);
-        return directionToTarget.move(follower);
-    }
-
-    record Move(String dir, int length) { }
 }

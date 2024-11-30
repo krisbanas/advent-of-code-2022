@@ -1,93 +1,93 @@
 package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
+import com.github.krisbanas.toolbox.NumGrid;
+import com.github.krisbanas.toolbox.Point;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.UnaryOperator;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Day11 {
 
-    public static final int DIVISION_MASTER = 9699690;
-
     public Day11() {
-        System.out.println(part1());
+//        System.out.println(part1());
         System.out.println(part2());
     }
 
     public Object part1() {
-        return simulateMonkeys(20, false);
-    }
+        String[] s = FileReader.readAsString("Day11Input.txt").split(" ");
+        List<Long> input = Arrays.stream(s).map(x -> Long.valueOf(x)).toList();
 
-    private Object part2() {
-        return simulateMonkeys(10_000, true);
-    }
 
-    private Object simulateMonkeys(int size, boolean modulo) {
-        final var monkeys = extractToMonkeyList();
+        List<Long> nextStep = new ArrayList<>();
 
-        for (int j = 0; j < size; j++) {
-            for (Monkey monke : monkeys) {
-                for (Long item : monke.items) {
-                    monke.itemsInspected[0] += 1;
-                    item = monke.function.apply(item);
-                    item = modulo ? item % DIVISION_MASTER : item / 3;
-                    if (item % monke.test == 0) {
-                        monkeys.get(monke.ifTrue).items.add(item);
-                    } else {
-                        monkeys.get(monke.ifFalse).items.add(item);
-                    }
-                }
-                monke.items.clear();
+        for (int i = 0; i < 25; i++) {
+            System.out.println("Part 1, step: " + i);
+            nextStep = new ArrayList<>();
+            for (long stone : input) {
+                if (stone == 0) nextStep.add(1L);
+                else if (String.valueOf(stone).length() % 2 == 0) {
+                    var len = String.valueOf(stone).length();
+                    var soneString = String.valueOf(stone);
+                    long first = Long.parseLong(soneString.substring(0, len / 2));
+                    String s1 = soneString.substring(len / 2).replaceAll("^0+", "");
+                    if (s1.isEmpty()) s1 = "0";
+                    long snd = Long.parseLong(s1);
+                    nextStep.add(first);
+                    nextStep.add(snd);
+                } else nextStep.add(stone * 2024);
             }
+            input = nextStep;
         }
-        return extractMostWorryingItem(monkeys);
+        System.out.println(input.size());
+        System.out.println(nextStep.size());
+        return null;
     }
 
-    private List<Monkey> extractToMonkeyList() {
-        return Arrays.stream(FileReader.readAsString("Day11Input.txt").split("\n\n"))
-                .map(x -> x.split("\n"))
-                .map(this::ints)
-                .map(this::toMonkey)
-                .toList();
-    }
+    public Object part2() {
+        String[] s = FileReader.readAsString("Day11Input.txt").split(" ");
+        List<Long> input = Arrays.stream(s).map(x -> Long.valueOf(x)).toList();
 
-    private static long extractMostWorryingItem(List<Monkey> monkeys) {
-        List<Long> sorted = new ArrayList<>(monkeys.stream().mapToLong(m -> m.itemsInspected[0]).sorted().boxed().toList());
-        Collections.reverse(sorted);
-        return sorted.get(0) * sorted.get(1);
-    }
 
-    private Monkey toMonkey(String[] input) {
-        int number = Integer.parseInt(input[0]);
-        List<Long> items = new ArrayList<>(Arrays.stream(input[1].split(",")).map(Long::valueOf).toList());
-        UnaryOperator<Long> operator;
-        if (input[2].contains("old * old")) {
-            operator = x -> x * x;
-        } else if (input[2].contains("+")) {
-            operator = x -> x + Integer.parseInt(ints(input[2]));
-        } else {
-            operator = x -> x * Integer.parseInt(ints(input[2]));
+        Map<Long, Long> nextOcc = new HashMap<>();
+        Map<Long, Long> occurrences = new HashMap<>();
+        occurrences = input.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+
+        for (int i = 0; i < 75; i++) {
+            System.out.println("Step: " + i);
+            for (long stone : occurrences.keySet()) {
+                if (stone == 0) nextOcc.put(1L, occurrences.get(stone));
+                else if (String.valueOf(stone).length() % 2 == 0) {
+                    var len = String.valueOf(stone).length();
+                    var soneString = String.valueOf(stone);
+                    long first = Long.parseLong(soneString.substring(0, len / 2));
+                    String s1 = soneString.substring(len / 2).replaceAll("^0+", "");
+                    if (s1.isEmpty()) s1 = "0";
+                    long snd = Long.parseLong(s1);
+
+                    var existingFirsts = nextOcc.getOrDefault(first, 0L);
+                    nextOcc.put(first, existingFirsts + occurrences.get(stone));
+
+                    var existingSnd = nextOcc.getOrDefault(snd, 0L);
+                    nextOcc.put(snd, existingSnd + occurrences.get(stone));
+                } else {
+                    long value = stone * 2024;
+                    var existing = nextOcc.getOrDefault(value, 0L);
+                    nextOcc.put(value, existing + occurrences.get(stone));
+                }
+            }
+            occurrences = nextOcc;
+            nextOcc = new HashMap<>();
         }
 
-        return new Monkey(number, items, operator, Integer.parseInt(input[3]), Integer.parseInt(input[4]), Integer.parseInt(input[5]), new int[1]);
+        long res = 0;
+        for (Long x : occurrences.values()) {
+            res += x;
+        }
+        System.out.println(res);
+        return null;
     }
 
-    private String[] ints(String[] input) {
-        var output = Arrays.stream(input)
-                .map(x -> x.replaceAll("[^\\d,.]", ""))
-                .toArray(String[]::new);
-        output[2] = input[2].replace("  Operation: new = ", "");
-        return output;
-    }
-
-    private String ints(String input) {
-        return input.replaceAll("[^\\d,.]", "");
-    }
-
-    record Monkey(int number, List<Long> items, UnaryOperator<Long> function, int test, int ifTrue, int ifFalse, int[] itemsInspected) {
-
-    }
 }

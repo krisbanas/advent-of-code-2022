@@ -1,6 +1,10 @@
 package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
+import com.github.krisbanas.toolbox.NumGrid;
+import com.github.krisbanas.toolbox.Point;
+
+import java.util.*;
 
 public class Day10 {
 
@@ -10,48 +14,99 @@ public class Day10 {
     }
 
     public Object part1() {
-        var commands = FileReader.readAsStringList("Day10Input.txt");
-        int cycle = 1;
-        int value = 1;
-        int result = 0;
+        String string = FileReader.readAsString("Day10Input.txt");
+        NumGrid grid = new NumGrid(string, "\r\n", "", ".");
 
-        for (String entry : commands) {
-            if (shouldStrengthenSignal(cycle)) result += cycle * value;
-            if (entry.contains("addx")) {
-                cycle++;
-                if (shouldStrengthenSignal(cycle)) result += cycle * value;
-                value += Integer.parseInt(entry.split(" ")[1]);
+        Queue<List<Point>> queue = new ArrayDeque<>();
+        for (int i = 0; i < grid.grid.length; i++) {
+            for (int j = 0; j < grid.grid[0].length; j++) {
+                if (grid.grid[i][j] == 0) queue.offer(List.of(new Point(i, j)));
             }
-            cycle++;
         }
-        return result;
-    }
 
+        int[][] dirs = new int[][]{
+                new int[]{0, 1},
+                new int[]{-1, 0},
+                new int[]{0, -1},
+                new int[]{1, 0},
+        };
 
-    private Object part2() {
-        var entries = FileReader.readAsStringList("Day10Input.txt");
-        int cycle = 1;
-        int value = 1;
+        List<List<Point>> results = new ArrayList<>();
 
-        for (String entry : entries) {
-            paintPixel(cycle, value);
-            if (entry.contains("addx")) {
-                cycle++;
-                paintPixel(cycle, value);
-                value += Integer.parseInt(entry.split(" ")[1]);
+        outer:
+        while (!queue.isEmpty()) {
+            List<Point> hike = queue.poll();
+            List<Point> newHike = new ArrayList<>();
+            for (Point point : hike) {
+                long currentHeight = grid.getValue(point);
+                if (currentHeight == 9) {
+                    results.add(hike);
+                    continue outer;
+                }
+                for (int[] dir : dirs) {
+                    var candidate = new Point(point.row() + dir[0], point.col() + dir[1]);
+                    if (!grid.isInGrid(candidate)) continue;
+                    if (grid.getValue(candidate) == -1) continue;
+                    long candHeight = grid.getValue(candidate);
+                    if (candHeight - 1 == currentHeight) newHike.add(candidate);
+                }
+
             }
-            cycle++;
+            if (!newHike.isEmpty()) {
+                queue.offer(newHike.stream().distinct().toList());
+            }
         }
-        return "";
+
+        int res = results.stream().mapToInt(List::size).sum();
+        return res;
     }
 
-    private static boolean shouldStrengthenSignal(int cycle) {
-        return (cycle + 20) % 40 == 0;
-    }
 
-    private void paintPixel(int cycle, int value) {
-        boolean isBlackPixel = (cycle - 1) % 40 >= value - 1 && (cycle - 1) % 40 <= value + 1;
-        if ((cycle - 1) % 40 == 0) System.out.println();
-        System.out.print(isBlackPixel ? "██" : "  ");
+    public Object part2() {
+        String string = FileReader.readAsString("Day10Input.txt");
+        NumGrid grid = new NumGrid(string, "\r\n", "", ".");
+
+        Queue<List<Point>> queue = new ArrayDeque<>();
+        for (int i = 0; i < grid.grid.length; i++) {
+            for (int j = 0; j < grid.grid[0].length; j++) {
+                if (grid.grid[i][j] == 0) queue.offer(List.of(new Point(i, j)));
+            }
+        }
+
+        int[][] dirs = new int[][]{
+                new int[]{0, 1},
+                new int[]{-1, 0},
+                new int[]{0, -1},
+                new int[]{1, 0},
+        };
+
+        List<List<Point>> results = new ArrayList<>();
+
+        outer:
+        while (!queue.isEmpty()) {
+            List<Point> hike = queue.poll();
+            List<Point> newHike = new ArrayList<>();
+            for (Point point : hike) {
+                long currentHeight = grid.getValue(point);
+                if (currentHeight == 9) {
+                    results.add(hike);
+                    continue outer;
+                }
+                for (int[] dir : dirs) {
+                    var candidate = new Point(point.row() + dir[0], point.col() + dir[1]);
+                    if (!grid.isInGrid(candidate)) continue;
+                    if (grid.getValue(candidate) == -1) continue;
+                    long candHeight = grid.getValue(candidate);
+                    if (candHeight - 1 == currentHeight) newHike.add(candidate);
+                }
+
+            }
+            if (!newHike.isEmpty()) {
+                queue.offer(newHike);
+            }
+        }
+
+        int res = results.stream().mapToInt(List::size).sum();
+        return res;
     }
 }
