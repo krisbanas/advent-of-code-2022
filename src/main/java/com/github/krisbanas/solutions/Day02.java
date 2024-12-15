@@ -2,84 +2,63 @@ package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
 
-import static java.lang.System.out;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Day02 {
 
     public Day02() {
-        out.println(part1());
-        out.println(part2());
+        System.out.println(part1());
+        System.out.println(part2());
     }
 
-    public int part1() {
-        return FileReader.readAsStringList("Day2Input.txt")
-                .stream().map(s -> s.split(" "))
-                .map(i -> new Pair(i[0], i[1]))
-                .mapToInt(this::getPointsForPair)
-                .sum();
+    public Object part1() {
+        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("Day2Input.txt");
+        int count = 0;
+        for (List<Integer> report : reports) {
+            if (isSafe(report)) count++;
+        }
+        return count;
     }
 
-    private Object part2() {
-        return FileReader.readAsStringList("Day2Input.txt")
-                .stream().map(s -> s.split(" "))
-                .map(i -> new Pair(i[0], i[1]))
-                .mapToInt(this::getPointsForPair2)
-                .sum();
+    public Object part2() {
+        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("Day2Input.txt");
+        int count = 0;
+        for (List<Integer> report : reports) {
+            if (isSafe(report)) count++;
+            else {
+                boolean ok = false;
+                for (int i = 0; i < report.size(); i++) {
+                    List<Integer> newList = new ArrayList<>();
+                    newList.addAll(report.subList(0, i));
+                    newList.addAll(report.subList(i + 1, report.size()));
+                    if (isSafe(newList)) {
+                        ok = true;
+                    }
+                }
+                if (ok) count++;
+            }
+        }
+        return count;
     }
 
-    private int getPointsForPair(Pair i) {
-        return switch (i.left()) {
-            case "A" -> //rock
-                    switch (i.right()) {
-                        case "X" -> 3 + 1; // rock
-                        case "Y" -> 6 + 2; //paper
-                        case "Z" -> 0 + 3; // scissors
-                        default -> 0;
-                    };
-            case "B" -> //paper
-                    switch (i.right()) {
-                        case "X" -> 1; // rock
-                        case "Y" -> 3 + 2; //paper
-                        case "Z" -> 6 + 3; //scissors
-                        default -> 0;
-                    };
-            case "C" -> //scissors
-                    switch (i.right()) {
-                        case "X" -> 6 + 1; // rock
-                        case "Y" -> 0 + 2; // paper
-                        case "Z" -> 3 + 3; //scissors
-                        default -> 0;
-                    };
-            default -> 0;
-        };
+    static boolean isSafe(List<Integer> report) {
+        if (report.get(1) > report.get(0)) {
+            for (int i = 0; i < report.size() - 1; i++) {
+                Integer prev = report.get(i);
+                Integer curr = report.get(i + 1);
+                if (curr - prev > 3) return false;
+                if (curr <= prev) return false;
+            }
+        } else {
+            for (int i = 0; i < report.size() - 1; i++) {
+                Integer prev = report.get(i);
+                Integer curr = report.get(i + 1);
+                if (curr - prev < 3) return false;
+                if (curr >= prev) return false;
+            }
+        }
+        return true;
     }
-
-    private int getPointsForPair2(Pair i) {
-        return switch (i.left()) {
-            case "A" -> //rock
-                    switch (i.right()) {
-                        case "X" -> 3 + 0; // lose, choose sc
-                        case "Y" -> 1 + 3; // draw
-                        case "Z" -> 2 + 6; // win, ppr
-                        default -> 0;
-                    };
-            case "B" -> //paper
-                    switch (i.right()) {
-                        case "X" -> 1 + 0; // lose
-                        case "Y" -> 2 + 3; //draw, ppr
-                        case "Z" -> 3 + 6; //scissors
-                        default -> 0;
-                    };
-            case "C" -> //scissors
-                    switch (i.right()) {
-                        case "X" -> 2 + 0; // lose
-                        case "Y" -> 3 + 3; // draw
-                        case "Z" -> 1 + 6; //win
-                        default -> 0;
-                    };
-            default -> 0;
-        };
-    }
-
-    record Pair(String left, String right) { }
 }
+

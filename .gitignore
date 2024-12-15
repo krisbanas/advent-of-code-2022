@@ -10,4 +10,6 @@ build
 *.ipr
 
 *.json
+*.py
 .ipynb_checkpoints
+*.txt

@@ -2,86 +2,128 @@ package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.lang.System.out;
 
 public class Day05 {
 
+    private final List<Integer[]> incorrect = new ArrayList<>();
+
     public Day05() {
-        out.println(part1());
-        out.println(part2());
+        System.out.println(part1());
+        System.out.println(part2());
     }
 
     public Object part1() {
-        List<Stack<String>> stacks = readStacks();
-        List<Command> commands = readCommands();
+        long result = 0;
+        String input = FileReader.readAsString("Day5Input.txt");
+        String[] first = input.split("\r\n\r\n")[0].split("\r\n");
+        List<Integer[]> rules = new ArrayList<>();
+        for (String entry : first) {
+            Integer[] rule = new Integer[2];
+            rule[0] = Integer.valueOf(entry.split("\\|")[0]);
+            rule[1] = Integer.valueOf(entry.split("\\|")[1]);
+            rules.add(rule);
+        }
 
-        for (Command c : commands) {
-            for (int i = 0; i < c.count(); i++) {
-                stacks.get(c.to()).push(stacks.get(c.from()).pop());
+        String[] second = input.split("\r\n\r\n")[1].split("\r\n");
+
+        Map<Integer, List<Integer[]>> rulesByBefore = rules.stream().collect(Collectors.groupingBy(i -> i[0]));
+        Map<Integer, List<Integer[]>> rulesByAfter = rules.stream().collect(Collectors.groupingBy(i -> i[1]));
+
+        outer:
+        for (String entry : second) {
+            Integer[] pages = Arrays.stream(entry.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
+            List<Integer> pagesBefore = new ArrayList<>();
+            List<Integer> pagesAfter = new ArrayList<>(Arrays.stream(pages).toList());
+
+            for (int page : pages) {
+                List<Integer> pagesThatShouldGoAfter = rulesByBefore.getOrDefault(page, Collections.emptyList())
+                        .stream().map(x -> x[1]).toList();
+                List<Integer> pagesThatShouldGoBefore = rulesByAfter.getOrDefault(page, Collections.emptyList())
+                        .stream().map(x -> x[0]).toList();
+
+                long violations = pagesThatShouldGoAfter.stream().filter(pagesBefore::contains).count();
+                violations += pagesThatShouldGoBefore.stream().filter(pagesAfter::contains).count();
+                pagesBefore.add(page);
+                pagesAfter.remove(Integer.valueOf(page));
+
+                if (violations != 0) {
+                    incorrect.add(pages);
+                    continue outer;
+                }
             }
+
+            result += pages[pages.length / 2];
         }
 
-        return stacks.stream().map(Stack::pop).collect(Collectors.joining());
+        return result;
     }
 
-    private Object part2() {
-        List<Stack<String>> stacks = readStacks();
-        List<Command> commands = readCommands();
-        Stack<String> tmp = new Stack<>();
-
-        for (Command c : commands) {
-            int count = c.count();
-            for (int i = 0; i < count; i++) tmp.push(stacks.get(c.from()).pop());
-            for (int i = 0; i < count; i++) stacks.get(c.to()).push(tmp.pop());
+    public Object part2() {
+        long result = 0;
+        String input = FileReader.readAsString("Day5Input.txt");
+        String[] first = input.split("\r\n\r\n")[0].split("\r\n");
+        List<Integer[]> rules = new ArrayList<>();
+        for (String entry : first) {
+            Integer[] rule = new Integer[2];
+            rule[0] = Integer.valueOf(entry.split("\\|")[0]);
+            rule[1] = Integer.valueOf(entry.split("\\|")[1]);
+            rules.add(rule);
+        }
+        Integer[][] prerequisites = rules.toArray(Integer[][]::new);
+        for (Integer[] incorrectPages : incorrect) {
+            int[] ordered = findOrder(incorrectPages, prerequisites);
+            result += ordered[ordered.length / 2];
+           adjacencyList = new HashMap<>();
+           visited = new ArrayList<>();
+            toVisit = new LinkedList<>();
         }
 
-        return stacks.stream().map(Stack::pop).collect(Collectors.joining());
+        return result;
     }
 
-    private static List<Stack<String>> readStacks() {
-        var xd = FileReader.readAsString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
-        var inputs = Arrays.stream(xd[0].split(System.lineSeparator()))
-                .map(x -> x.replace("[", " "))
-                .map(x -> x.replace("]", " "))
-                .map(x -> x.replaceAll("^ ", ""))
-                .map(x -> x.replaceAll(" $", ""))
-                .toList();
-        var max = Arrays.stream(inputs.get(inputs.size() - 1)
-                .replace("[a-zA-z]", "")
-                .split(" +"))
-                .filter(x -> !x.isEmpty())
-                .mapToInt(Integer::parseInt)
-                .max().getAsInt();
-        List<Stack<String>> stacks = new ArrayList<>();
-        for (int i = 0; i < max; i++) {
-            stacks.add(new Stack<>());
+    private  Map<Integer, List<Integer>> adjacencyList = new HashMap<>();
+    private Map<Integer, Integer> inDegree;
+    private  List<Integer> visited = new ArrayList<>();
+    private  Queue<Integer> toVisit = new LinkedList<>();
+
+    public int[] findOrder(Integer[] pages, Integer[][] prerequisites) {
+        inDegree = new HashMap<Integer, Integer>();
+        for (int page : pages) {
+            inDegree.put(page, 0);
         }
-        for (int i = inputs.size() - 2; i >= 0; i--) {
-            String line = inputs.get(i);
-            int pointer = 0;
-            while (pointer < line.length()) {
-                String character = Character.toString(line.charAt(pointer));
-                if (!character.isBlank()) stacks.get(pointer / 4).push(character);
-                pointer += 4;
-            }
+
+        for (int page : pages) {
+            adjacencyList.put(page, new ArrayList<>());
         }
-        return stacks;
+
+        for (var prerequisite : prerequisites) {
+            if (!adjacencyList.containsKey(prerequisite[0])) continue;
+            if (!adjacencyList.containsKey(prerequisite[1])) continue;
+            adjacencyList.get(prerequisite[0]).add(prerequisite[1]);
+            inDegree.put(prerequisite[1], inDegree.get(prerequisite[1]) + 1);
+        }
+
+        initializeQueue();
+        while (!toVisit.isEmpty()) {
+            Integer nextVertex = toVisit.poll();
+            visited.add(nextVertex);
+
+            adjacencyList.get(nextVertex).stream()
+                    .peek(i -> inDegree.put(i, inDegree.get(i) - 1))
+                    .filter(i -> inDegree.get(i) == 0)
+                    .forEach(toVisit::offer);
+        }
+        int[] resultArray = visited.stream().mapToInt(x -> x).toArray();
+        return resultArray;
     }
 
-    private static List<Command> readCommands() {
-        var input = FileReader.readAsString("Day5Input.txt").split(System.lineSeparator() + System.lineSeparator());
-        return Arrays.stream(input[1].split(System.lineSeparator()))
-                .map(x -> x.replaceAll("[a-zA-Z ]", " "))
-                .map(x -> x.trim().replaceAll(" +", " ").split(" "))
-                .map(x -> new Command(Integer.parseInt(x[0]), Integer.parseInt(x[1]) - 1, Integer.parseInt(x[2]) - 1))
-                .toList();
+    private void initializeQueue() {
+        for (int page : inDegree.keySet()) {
+            if (inDegree.get(page) == 0) toVisit.offer(page);
+        }
+
     }
 
-    record Command(int count, int from, int to) { }
 }

@@ -1,159 +1,184 @@
 package com.github.krisbanas.solutions;
 
-import com.github.krisbanas.toolbox.Direction;
 import com.github.krisbanas.toolbox.FileReader;
-import com.github.krisbanas.toolbox.NumGrid;
 import com.github.krisbanas.toolbox.Point;
 
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Day14 {
 
-    private static final long ROCK = 1;
-    private static final long SAND = 5;
-
     public Day14() {
-        System.out.println(part1());
+//        System.out.println(part1());
         System.out.println(part2());
     }
 
     public Object part1() {
-        var input = FileReader.readAsStringList("Day14Input.txt");
-        List<List<Point>> points = input.stream().map(x -> x.split(" -> "))
-                .map(x -> Arrays.stream(x).map(p -> p.split(",")).map(p -> new Point(Integer.parseInt(p[0]) - 450, Integer.parseInt(p[1]))).toList())
-                .toList();
-
-        NumGrid numGrid = prepareGridForP1(points);
-        List<Point> sandPoints = new ArrayList<>();
-        Direction[] sandDirections = new Direction[]{Direction.SOUTH, Direction.SOUTHWEST, Direction.SOUTHEAST};
-
-        outer:
-        while (true) {
-            sandPoints.add(new Point(50, 0));
-            List<Point> pointsToIterate = new ArrayList<>(sandPoints);
-            for (Point point : pointsToIterate) {
-                var moved = true;
-                inner:
-                while (moved) {
-                    if (point.col() >= 179) break outer; // fell!
-                    numGrid.setValue(point, SAND);
-
-                    for (Direction dir : sandDirections) {
-//                        if (dir == Direction.SOUTHEAST && numGrid.getValue(Direction.EAST.move(point)) != 0) continue;
-//                        if (dir == Direction.SOUTHWEST && numGrid.getValue(Direction.WEST.move(point)) != 0) continue;
-                        Point newSpot = dir.move(point);
-                        if (numGrid.getValue(newSpot) == 0) {
-                            numGrid.setValue(newSpot, SAND);
-                            numGrid.setValue(point, 0);
-                            sandPoints.add(newSpot);
-                            sandPoints.remove(point);
-                            point = newSpot;
-                            continue inner;
-                        }
-                    }
-
-                    moved = false;
-                }
-                // can't move!
-                sandPoints.remove(point);
-            }
+        int rows = 103;
+        int cols = 101;
+        int TIMES = 1000;
+        List<Robot> robots = new ArrayList<>();
+        List<String> input = FileReader.readAsStringList("14.txt");
+        for (String line : input) {
+            line = line.replaceAll("p=", "").replaceAll(" v=", ",");
+            String[] split = line.split(",");
+            Robot robot = new Robot(new Point(Integer.parseInt(split[1]), Integer.parseInt(split[0])), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
+            robots.add(robot);
         }
-//        printGrid(numGrid);
-        return numGrid.count(5) - 1;
+
+        int[][] grid = new int[rows][cols];
+        for (Robot robot : robots) {
+            grid[robot.pos.row()][robot.pos.col()] += 1;
+        }
+        print(grid, 0);
+
+        for (int i = 0; i < TIMES; i++) {
+            System.out.println("Simulating time: " + (i + 1));
+            int[][] newGrid = new int[rows][cols];
+            List<Robot> newRobots = new ArrayList<>();
+            for (Robot robot : robots) {
+                Point pos = robot.pos;
+                int newRow = (pos.row() + robot.rowVel());
+                if (newRow > rows - 1) newRow %= (rows);
+                if (newRow < 0) newRow = (rows + newRow);
+
+                int newCol = (pos.col() + robot.colVel());
+                if (newCol > cols - 1) newCol %= (cols);
+                if (newCol < 0) newCol = (cols + newCol);
+
+                Robot newRobot = new Robot(new Point(newRow, newCol), robot.colVel(), robot.rowVel());
+                newRobots.add(newRobot);
+                newGrid[newRobot.pos.row()][newRobot.pos.col()] += 1;
+            }
+            grid = newGrid;
+            robots = newRobots;
+            print(grid, i + 1);
+        }
+
+        // count
+        List<Point> quadStart = List.of(
+                new Point(0, 0),
+                new Point(rows / 2 + 1, 0),
+                new Point(0, cols / 2 + 1),
+                new Point(rows / 2 + 1, cols / 2 + 1)
+        );
+
+        List<Integer> results = new ArrayList<>();
+        for (Point point : quadStart) {
+            int rowStart = point.row();
+            int colStart = point.col();
+            int quadResult = 0;
+            for (int row = 0; row < rows / 2; row++) {
+                for (int col = 0; col < cols / 2; col++) {
+                    quadResult += grid[row + rowStart][col + colStart];
+                }
+            }
+            results.add(quadResult);
+        }
+
+        long res = 1;
+        for (int result : results) {
+            res *= result;
+        }
+        return res;
     }
 
     public Object part2() {
-        var input = FileReader.readAsStringList("Day14Input.txt");
-        List<List<Point>> points = input.stream().map(x -> x.split(" -> "))
-                .map(x -> Arrays.stream(x).map(p -> p.split(",")).map(p -> new Point(Integer.parseInt(p[0]) - 250, Integer.parseInt(p[1]))).toList())
-                .toList();
-
-        NumGrid numGrid = prepareGridForP2(points);
-        Direction[] sandDirections = new Direction[]{Direction.SOUTH, Direction.SOUTHWEST, Direction.SOUTHEAST};
-
-        outer:
-        while (true) {
-            Point point = new Point(250, 0);
-
-            var moved = true;
-            boolean cantMove = true;
-            for (Direction dir : sandDirections)
-                if (numGrid.getValue(dir.move(point)) != SAND) cantMove = false;
-            if (cantMove) break outer;
-            inner:
-            while (moved) {
-                numGrid.setValue(point, SAND);
+        // test
+        int[][] myGrid = new int[][]{
+                new int[]{0, 1, 1, 1, 0},
+                new int[]{0, 1, 1, 1, 0},
+                new int[]{0, 1, 1, 1, 0},
+                new int[]{1, 1, 1, 1, 2},
+        };
+        print(myGrid, 0);
+        System.out.println(checkChristmasTree(myGrid));
 
 
-                for (Direction dir : sandDirections) {
-                    Point newSpot = dir.move(point);
-                    if (numGrid.getValue(newSpot) == 0) {
-                        numGrid.setValue(newSpot, SAND);
-                        numGrid.setValue(point, 0);
-                        point = newSpot;
-                        continue inner;
-                    }
-                }
-                moved = false;
-            }
+        myGrid = new int[][]{
+                new int[]{1, 2, 1, 1, 2},
+                new int[]{0, 1, 5, 1, 0},
+                new int[]{0, 1, 8, 1, 0},
+                new int[]{0, 1, 5, 1, 0},
+                new int[]{1, 2, 1, 1, 2},
+        };
+        print(myGrid, 0);
+        System.out.println(checkChristmasTree(myGrid));
 
-            if (numGrid.getValue(point) > 1000) break outer;
+
+        int rows = 103;
+        int cols = 101;
+        int TIMES = 1000000;
+        List<Robot> robots = new ArrayList<>();
+        List<String> input = FileReader.readAsStringList("14.txt");
+        for (String line : input) {
+            line = line.replaceAll("p=", "").replaceAll(" v=", ",");
+            String[] split = line.split(",");
+            Robot robot = new Robot(new Point(Integer.parseInt(split[1]), Integer.parseInt(split[0])), Integer.parseInt(split[2]), Integer.parseInt(split[3]));
+            robots.add(robot);
         }
-        printGrid(numGrid);
-        return numGrid.count(5) + 1;
-    }
 
-    private static NumGrid prepareGridForP1(List<List<Point>> points) {
-        var numGrid = NumGrid.ofSize(100, 180);
-        for (var line : points) {
-            for (int i = 0; i < line.size() - 1; i++) {
-                var left = line.get(i);
-                var right = line.get(i + 1);
-                Direction drawingDir = left.findDirectionToTarget(right);
-                while (!left.equals(drawingDir.move(right))) {
-                    numGrid.setValue(left, ROCK); // 1 = rock
-                    left = drawingDir.move(left);
-                }
-            }
+        int[][] grid = new int[rows][cols];
+        for (Robot robot : robots) {
+            grid[robot.pos.row()][robot.pos.col()] += 1;
         }
-        return numGrid;
-    }
 
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            if (i % 100000 == 0) System.out.println("On itaration: " + i);
+            int[][] newGrid = new int[rows][cols];
+            List<Robot> newRobots = new ArrayList<>();
+            for (Robot robot : robots) {
+                Point pos = robot.pos;
+                int newRow = (pos.row() + robot.rowVel());
+                if (newRow > rows - 1) newRow %= (rows);
+                if (newRow < 0) newRow = (rows + newRow);
 
-    private static NumGrid prepareGridForP2(List<List<Point>> points) {
-        var numGrid = NumGrid.ofSize(500, 180);
-        for (var line : points) {
-            for (int i = 0; i < line.size() - 1; i++) {
-                var left = line.get(i);
-                var right = line.get(i + 1);
-                Direction drawingDir = left.findDirectionToTarget(right);
-                while (!left.equals(drawingDir.move(right))) {
-                    numGrid.setValue(left, ROCK); // 1 = rock
-                    left = drawingDir.move(left);
-                }
+                int newCol = (pos.col() + robot.colVel());
+                if (newCol > cols - 1) newCol %= (cols);
+                if (newCol < 0) newCol = (cols + newCol);
+
+                Robot newRobot = new Robot(new Point(newRow, newCol), robot.colVel(), robot.rowVel());
+                newRobots.add(newRobot);
+                newGrid[newRobot.pos.row()][newRobot.pos.col()] += 1;
+
+            }
+            grid = newGrid;
+            robots = newRobots;
+            if (checkChristmasTree(grid)) {
+                print(grid, i + 1);
             }
         }
 
-        int maxCol = points.stream().flatMap(Collection::stream).sorted(Comparator.comparingInt(x -> -x.col())).toList().get(0).col();
+        return null;
 
-        int floorCol = maxCol + 2;
-
-        IntStream.range(0, 500).mapToObj(x -> new Point(x, floorCol)).forEach(p -> numGrid.setValue(p, ROCK));
-
-        return numGrid;
     }
 
-    public void printGrid(NumGrid numGrid) {
-        var grid = numGrid.grid;
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                long val = grid[i][j];
-                if (val == 0) System.out.print(".");
-                if (val == 1) System.out.print("#");
-                if (val == 5) System.out.print("o");
+    private boolean checkChristmasTree(int[][] grid) {
+        int count = 0;
+        for (int i = 1; i < grid.length - 1; i++) { // hope it's in the midle
+            for (int j = 1; j < grid[i].length - 1; j++) {
+                if (grid[i][j] > 0 && grid[i - 1][j] > 0 && grid[i + 1][j] > 0 && grid[i][j - 1] > 0 && grid[i][j + 1] > 0)
+                    count++;
+            }
+        }
+        return count > 15;
+    }
+
+    /**
+     * Najpierw col potem row
+     */
+    record Robot(Point pos, int colVel, int rowVel) {
+    }
+
+    private void print(int[][] grid, int i) {
+        System.out.println("Robots after iteration: " + i);
+        for (int row = 0; row < grid.length; row++) {
+            for (int col = 0; col < grid[row].length; col++) {
+                int val = grid[row][col];
+                System.out.print(val == 0 ? "." : val + "");
             }
             System.out.println();
         }
+        System.out.println();
     }
 }

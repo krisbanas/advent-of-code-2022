@@ -20,7 +20,21 @@ public class NumGrid {
 
     public NumGrid(String stringToParse, String lineDelimiter, String elementDelimiter) {
         grid = Arrays.stream(stringToParse.split(lineDelimiter))
-                .map(line -> Arrays.stream(line.split(elementDelimiter)).map(String::trim).filter(e -> !e.isEmpty()).mapToLong(Long::parseLong).toArray())
+                .map(line -> Arrays.stream(line.split(elementDelimiter))
+                        .map(String::trim)
+                        .filter(e -> !e.isEmpty())
+                        .mapToLong(Long::parseLong)
+                        .toArray())
+                .toArray(long[][]::new);
+    }
+
+    public NumGrid(String stringToParse, String lineDelimiter, String elementDelimiter, String ignoredCharacter) {
+        grid = Arrays.stream(stringToParse.split(lineDelimiter))
+                .map(line -> Arrays.stream(line.split(elementDelimiter))
+                        .map(String::trim)
+                        .filter(e -> !e.isEmpty())
+                        .mapToLong(x -> "ignoredCharacter".equals(x) ? -1 : Long.parseLong(x))
+                        .toArray())
                 .toArray(long[][]::new);
     }
 
