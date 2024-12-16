@@ -3,9 +3,7 @@ package com.github.krisbanas.solutions;
 import com.github.krisbanas.toolbox.FileReader;
 import com.github.krisbanas.toolbox.Point;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Day15P2 {
 
@@ -123,9 +121,7 @@ public class Day15P2 {
                         }
                     }
                 }
-                default -> {
-                    throw new IllegalArgumentException("wtf " + move);
-                }
+                default -> throw new IllegalArgumentException("wtf " + move);
             }
 //            print(map, move);
         }
@@ -184,14 +180,13 @@ public class Day15P2 {
             }
         }
         boolean canMove = true;
-        boolean hasSpans = false;
+        boolean hasSpans;
 
         for (int i = 0; i < map.length; i++) {
             if (!canMove) return map;
             hasSpans = false;
             for (int j = 0; j < map[i].length; j++) {
                 if (span[i][j] == 0) continue;
-                // check
                 if (map[i + 1][j].equals("#")) { // wall
                     return map;
                 }
@@ -225,8 +220,6 @@ public class Day15P2 {
             }
         }
 
-        // move acc to span
-
         return map;
     }
 
@@ -234,9 +227,9 @@ public class Day15P2 {
     private void print(String[][] grid, String s) {
         System.out.println("Move " + s);
         System.out.println("Robot: " + robot.row() + " " + robot.col());
-        for (int row = 0; row < grid.length; row++) {
-            for (int col = 0; col < grid[row].length; col++) {
-                System.out.print(grid[row][col]);
+        for (String[] strings : grid) {
+            for (String string : strings) {
+                System.out.print(string);
             }
             System.out.println();
         }
