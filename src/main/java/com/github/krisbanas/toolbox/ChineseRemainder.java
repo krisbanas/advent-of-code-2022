@@ -1,5 +1,8 @@
 package com.github.krisbanas.toolbox;
 
+/**
+ * It WILL appear again eventually...
+ */
 public class ChineseRemainder {
     /**
      * Calculates the modular multiplicative inverse using the extended Euclidean algorithm
@@ -26,7 +29,7 @@ public class ChineseRemainder {
      * @param moduli     Array of moduli (must be pairwise coprime)
      * @return Solution to the system of congruences
      */
-    public static long[] chineseRemainderTheorem(long[] remainders, long[] moduli) {
+    public static long[] solveChineseRemainderTheorem(long[] remainders, long[] moduli) {
         // Validate input
         if (remainders.length != moduli.length) {
             throw new IllegalArgumentException("Remainders and moduli must have the same length");
@@ -84,7 +87,7 @@ public class ChineseRemainder {
     private static void testChineseRemainderTheorem(long[] remainders, long[] moduli) {
         try {
             System.out.println("=== Chinese Remainder Theorem Solution ===");
-            long[] result = chineseRemainderTheorem(remainders, moduli);
+            long[] result = solveChineseRemainderTheorem(remainders, moduli);
 
             System.out.println("Verification:");
             for (int i = 0; i < remainders.length; i++) {
@@ -105,7 +108,7 @@ public class ChineseRemainder {
     }
 
     public static void main(String[] args) {
-        // 2020, day 13, part 2
+        // Test case: 2020, day 13, part 2.
         // 37,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,x,x,x,433,x,x,x,x,x,x,x,23,x,x,x,x,x,x,x,x,17,x,19,x,x,x,x,x,x,x,x,x,29,x,593,x,x,x,x,x,x,x,x,x,x,x,x,13
         testChineseRemainderTheorem(new long[]{0, 41 - 27, 433 - 37, 23 - 45, 17 - 54, 19 - 56, 29 - 66, 593 - 68, 13 - 81}, new long[]{37, 41, 433, 23, 17, 19, 29, 593, 13});
     }
