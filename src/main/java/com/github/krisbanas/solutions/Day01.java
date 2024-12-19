@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.github.krisbanas.Main.ROW_PATTERN;
+
 public class Day01 {
 
     public static void main(String[] args) {
@@ -24,8 +26,7 @@ public class Day01 {
         long part2Result = part2();
         long part2Time = System.nanoTime() - startTime;
 
-        System.out.printf("Part 1: %d (%.3fms)%n", part1Result, part1Time / 1_000_000.0);
-        System.out.printf("Part 2: %d (%.3fms)%n", part2Result, part2Time / 1_000_000.0);
+        System.out.printf(ROW_PATTERN, 1, part1Result, part1Time / 1_000_000.0, part2Result, part2Time / 1_000_000.0);
     }
 
     public long part1() {
