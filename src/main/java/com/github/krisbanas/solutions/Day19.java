@@ -2,7 +2,13 @@ package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Day19 {
 
@@ -48,14 +54,9 @@ public class Day19 {
         Set<String> cannot = new HashSet<>();
         Map<String, Long> count = new HashMap<>();
         count.put("", 1L);
-
         long result = 0;
-        int size = entries.length;
 
-        for (int i = 0; i < entries.length; i++) {
-            String entry = entries[i];
-            System.out.println("Entry: " + i + "/" + size);
-
+        for (String entry : entries) {
             for (int j = entry.length() - 1; j >= 0; j--) {
                 String toTest = entry.substring(j);
                 if (count.containsKey(toTest)) continue;

@@ -7,13 +7,25 @@ import java.util.List;
 
 public class Day02 {
 
-    public Day02() {
-        System.out.println(part1());
-        System.out.println(part2());
+    public static void main(String[] args) {
+        new Day02();
     }
 
-    public Object part1() {
-        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("Day2Input.txt");
+    public Day02() {
+        long startTime = System.nanoTime();
+        long part1Result = part1();
+        long part1Time = System.nanoTime() - startTime;
+
+        startTime = System.nanoTime();
+        long part2Result = part2();
+        long part2Time = System.nanoTime() - startTime;
+
+        System.out.printf("Part 1: %d (%.3fms)%s%n", part1Result, part1Time / 1_000_000.0, " should be: 220");
+        System.out.printf("Part 2: %d (%.3fms)%s%n", part2Result, part2Time / 1_000_000.0, " should be: 296");
+    }
+
+    public long part1() {
+        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("2.txt");
         int count = 0;
         for (List<Integer> report : reports) {
             if (isSafe(report)) count++;
@@ -21,8 +33,8 @@ public class Day02 {
         return count;
     }
 
-    public Object part2() {
-        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("Day2Input.txt");
+    public long part2() {
+        List<List<Integer>> reports = FileReader.readAsListOfIntegerLists("2.txt");
         int count = 0;
         for (List<Integer> report : reports) {
             if (isSafe(report)) count++;

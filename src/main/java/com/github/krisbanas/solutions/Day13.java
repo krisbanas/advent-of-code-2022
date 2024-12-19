@@ -2,7 +2,12 @@ package com.github.krisbanas.solutions;
 
 import com.github.krisbanas.toolbox.FileReader;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 public class Day13 {
 
@@ -124,12 +129,9 @@ public class Day13 {
         return costMap.getOrDefault(game.target, -1);
     }
 
-    record Game(Point target, Point a, Point b) {
-    }
+    record Game(Point target, Point a, Point b) {}
 
-    record State(Point pos, int price, int[] times) {
-    }
+    record State(Point pos, int price, int[] times) {}
 
-    record Point(long row, long col) {
-    }
+    record Point(long row, long col) {}
 }
