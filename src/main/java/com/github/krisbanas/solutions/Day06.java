@@ -7,14 +7,17 @@ import java.util.Objects;
 
 public class Day06 {
 
+    public static void main(String[] args) {
+        new Day06();
+    }
+
     public Day06() {
         System.out.println(part1());
         System.out.println(part2());
     }
 
     public Object part1() {
-        List<String> input = FileReader.readAsStringList("Day6Input.txt");
-        String[][] in = input.stream().map(x -> x.split("")).toArray(String[][]::new);
+        String[][] in = FileReader.readAsStringGrid("6.txt");
         int[][] visited = new int[in.length][in[0].length];
 
         int[] position = null;
@@ -50,15 +53,14 @@ public class Day06 {
             } else {
                 dirPointer--;
                 if (dirPointer == -1) dirPointer = 3;
-                direction = dirs[dirPointer];
             }
         }
 
         visited[position[0]][position[1]] = 1;
         long result = 0;
-        for (int i = 0; i < visited.length; i++) {
+        for (int[] ints : visited) {
             for (int j = 0; j < visited[0].length; j++) {
-                if (visited[i][j] == 1) result++;
+                if (ints[j] == 1) result++;
             }
         }
         return result;
@@ -96,19 +98,15 @@ public class Day06 {
                 continue;
             }
 
-//            if (new Log(1, dirPointer).equals(visited[position[0]][position[1]])) {
-//                return true;
-//            }
-//            else
-                if (!in[position[0] + direction[0]][position[1] + direction[1]].equals("#")) {
+            if (!in[position[0] + direction[0]][position[1] + direction[1]].equals("#")) {
                 visited[position[0]][position[1]] = new Log(1, dirPointer);
             } else {
                 dirPointer--;
                 if (dirPointer == -1) dirPointer = 3;
                 direction = dirs[dirPointer];
             }
-            if (Objects.equals(visited[position[0] + direction[0]][position[1] + direction[1]], new Log(1, dirPointer))) return true;
-
+            if (Objects.equals(visited[position[0] + direction[0]][position[1] + direction[1]], new Log(1, dirPointer)))
+                return true;
         }
 
 
@@ -116,7 +114,7 @@ public class Day06 {
     }
 
     public Object part2() {
-        List<String> input = FileReader.readAsStringList("Day6Input.txt");
+        List<String> input = FileReader.readAsStringList("6.txt");
         String[][] in = input.stream().map(x -> x.split("")).toArray(String[][]::new);
         Log[][] visited = new Log[in.length][in[0].length];
 
@@ -142,9 +140,9 @@ public class Day06 {
                     counter++;
                     System.out.println("  HIT!");
                 } else {
-                    System.out.println();
+//                    System.out.println();
                 }
-                input = FileReader.readAsStringList("Day6Input.txt");
+                input = FileReader.readAsStringList("6.txt");
                 in = input.stream().map(x -> x.split("")).toArray(String[][]::new);
                 visited = new Log[in.length][in[0].length];
             }

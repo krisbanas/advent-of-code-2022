@@ -4,15 +4,28 @@ import com.github.krisbanas.toolbox.FileReader;
 
 import java.util.*;
 
+import static com.github.krisbanas.Main.ROW_PATTERN;
+
 public class Day07 {
 
-    public Day07() {
-        System.out.println(part1());
-        System.out.println(part2());
+    public static void main(String[] args) {
+        new Day07();
     }
 
-    public Object part1() {
-        List<String> input = FileReader.readAsStringList("Day7Input.txt");
+    public Day07() {
+        long startTime = System.nanoTime();
+        long part1Result = part1();
+        long part1Time = System.nanoTime() - startTime;
+
+        startTime = System.nanoTime();
+        long part2Result = part2();
+        long part2Time = System.nanoTime() - startTime;
+
+        System.out.printf(ROW_PATTERN, 7, part1Result, part1Time / 1_000_000.0, part2Result, part2Time / 1_000_000.0);
+    }
+
+    public long part1() {
+        List<String> input = FileReader.readAsStringList("7.txt");
 
         long result = 0;
         for (String entry : input) {
@@ -27,18 +40,14 @@ public class Day07 {
                     results.add(curr.getFirst());
                     continue;
                 }
-                List<Long> summed = new ArrayList<>();
-                summed.add(curr.get(0) + curr.get(1));
-                for (int i = 2; i < curr.size(); i++) summed.add(curr.get(i));
+                List<Long> summed = applySum(curr);
                 q.offer(summed);
 
-                List<Long> muld = new ArrayList<>();
-                muld.add(curr.get(0) * curr.get(1));
-                for (int i = 2; i < curr.size(); i++) muld.add(curr.get(i));
+                List<Long> muld = applyMultiplication(curr);
                 q.offer(muld);
             }
-            for (long i : results) {
-                if (i == sum) {
+            for (long candidateResult : results) {
+                if (candidateResult == sum) {
                     result += sum;
                     break;
                 }
@@ -48,8 +57,22 @@ public class Day07 {
         return result;
     }
 
-    public Object part2() {
-        List<String> input = FileReader.readAsStringList("Day7Input.txt");
+    private static List<Long> applyMultiplication(List<Long> curr) {
+        List<Long> muld = new ArrayList<>();
+        muld.add(curr.get(0) * curr.get(1));
+        for (int i = 2; i < curr.size(); i++) muld.add(curr.get(i));
+        return muld;
+    }
+
+    private static List<Long> applySum(List<Long> curr) {
+        List<Long> summed = new ArrayList<>();
+        summed.add(curr.get(0) + curr.get(1));
+        for (int i = 2; i < curr.size(); i++) summed.add(curr.get(i));
+        return summed;
+    }
+
+    public long part2() {
+        List<String> input = FileReader.readAsStringList("7.txt");
 
         long result = 0;
         for (String entry : input) {
@@ -64,27 +87,22 @@ public class Day07 {
                     results.add(curr.getFirst());
                     continue;
                 }
-                List<Long> summed = new ArrayList<>();
-                summed.add(curr.get(0) + curr.get(1));
-                for (int i = 2; i < curr.size(); i++) summed.add(curr.get(i));
+                List<Long> summed = applySum(curr);
                 q.offer(summed);
 
-                List<Long> muld = new ArrayList<>();
-                muld.add(curr.get(0) * curr.get(1));
-                for (int i = 2; i < curr.size(); i++) muld.add(curr.get(i));
+                List<Long> muld = applyMultiplication(curr);
                 q.offer(muld);
 
                 List<Long> cat = new ArrayList<>();
-                String s = String.valueOf(curr.get(0)) + String.valueOf(curr.get(1));
+                String s = curr.get(0) + String.valueOf(curr.get(1));
+                cat.add(Long.parseLong(s));
+                for (int i = 2; i < curr.size(); i++) cat.add(curr.get(i));
                 if (!(s.length() > String.valueOf(sum).length())) {
-                    cat.add(Long.parseLong(s));
-                    for (int i = 2; i < curr.size(); i++) cat.add(curr.get(i));
                     q.offer(cat);
                 }
-
             }
-            for (long i : results) {
-                if (i == sum) {
+            for (long candidateResult : results) {
+                if (candidateResult == sum) {
                     result += sum;
                     break;
                 }

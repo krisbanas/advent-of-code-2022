@@ -4,110 +4,127 @@ import com.github.krisbanas.toolbox.FileReader;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.github.krisbanas.Main.ROW_PATTERN;
 
 public class Day05 {
 
-    private final List<Integer[]> incorrect = new ArrayList<>();
-
-    public Day05() {
-        System.out.println(part1());
-        System.out.println(part2());
+    public static void main(String[] args) {
+        new Day05();
     }
 
-    public Object part1() {
-        long result = 0;
-        String input = FileReader.readAsString("Day5Input.txt");
-        String[] first = input.split("\r\n\r\n")[0].split("\r\n");
-        List<Integer[]> rules = new ArrayList<>();
-        for (String entry : first) {
-            Integer[] rule = new Integer[2];
-            rule[0] = Integer.valueOf(entry.split("\\|")[0]);
-            rule[1] = Integer.valueOf(entry.split("\\|")[1]);
-            rules.add(rule);
+    private final List<String[]> incorrectPagesList = new ArrayList<>();
+
+    public Day05() {
+        long startTime = System.nanoTime();
+        long part1Result = part1();
+        long part1Time = System.nanoTime() - startTime;
+
+        startTime = System.nanoTime();
+        long part2Result = part2();
+        long part2Time = System.nanoTime() - startTime;
+
+        System.out.printf(ROW_PATTERN, 5, part1Result, part1Time / 1_000_000.0, part2Result, part2Time / 1_000_000.0);
+    }
+
+    public long part1() {
+        String[] input = FileReader.readAsString("5.txt").split("\r\n\r\n");
+        String[] firstPart = input[0].split("\r\n");
+
+        List<Rule> rules = new ArrayList<>();
+        for (String entry : firstPart) {
+            String[] split = entry.split("\\|");
+            rules.add(new Rule(split[0], split[1]));
         }
 
-        String[] second = input.split("\r\n\r\n")[1].split("\r\n");
+        Map<String, List<String>> pagesByPreceding = rules.stream().collect(Collectors.toMap(
+                Rule::pre,
+                x -> List.of(x.post()),
+                (a, b) -> Stream.of(a, b).flatMap(Collection::stream).toList()
+        ));
+        Map<String, List<String>> pagesBySucceeding = rules.stream().collect(Collectors.toMap(
+                Rule::post,
+                x -> List.of(x.pre()),
+                (a, b) -> Stream.of(a, b).flatMap(Collection::stream).toList()
+        ));
 
-        Map<Integer, List<Integer[]>> rulesByBefore = rules.stream().collect(Collectors.groupingBy(i -> i[0]));
-        Map<Integer, List<Integer[]>> rulesByAfter = rules.stream().collect(Collectors.groupingBy(i -> i[1]));
-
+        long result = 0;
+        String[] pageEntries = input[1].split("\r\n");
         outer:
-        for (String entry : second) {
-            Integer[] pages = Arrays.stream(entry.split(",")).map(Integer::valueOf).toArray(Integer[]::new);
-            List<Integer> pagesBefore = new ArrayList<>();
-            List<Integer> pagesAfter = new ArrayList<>(Arrays.stream(pages).toList());
+        for (String entry : pageEntries) {
+            String[] pages = Arrays.stream(entry.split(",")).toArray(String[]::new);
+            List<String> pagesBefore = new ArrayList<>();
+            List<String> pagesAfter = new ArrayList<>(Arrays.stream(pages).toList());
 
-            for (int page : pages) {
-                List<Integer> pagesThatShouldGoAfter = rulesByBefore.getOrDefault(page, Collections.emptyList())
-                        .stream().map(x -> x[1]).toList();
-                List<Integer> pagesThatShouldGoBefore = rulesByAfter.getOrDefault(page, Collections.emptyList())
-                        .stream().map(x -> x[0]).toList();
+            for (String page : pages) {
+                List<String> pagesThatShouldGoAfter = pagesByPreceding.get(page);
+                List<String> pagesThatShouldGoBefore = pagesBySucceeding.get(page);
 
                 long violations = pagesThatShouldGoAfter.stream().filter(pagesBefore::contains).count();
                 violations += pagesThatShouldGoBefore.stream().filter(pagesAfter::contains).count();
                 pagesBefore.add(page);
-                pagesAfter.remove(Integer.valueOf(page));
+                pagesAfter.remove(page);
 
                 if (violations != 0) {
-                    incorrect.add(pages);
+                    incorrectPagesList.add(pages);
                     continue outer;
                 }
             }
 
-            result += pages[pages.length / 2];
+            result += Integer.parseInt(pages[pages.length / 2]);
         }
 
         return result;
     }
 
-    public Object part2() {
+    public long part2() {
         long result = 0;
-        String input = FileReader.readAsString("Day5Input.txt");
-        String[] first = input.split("\r\n\r\n")[0].split("\r\n");
-        List<Integer[]> rules = new ArrayList<>();
-        for (String entry : first) {
-            Integer[] rule = new Integer[2];
-            rule[0] = Integer.valueOf(entry.split("\\|")[0]);
-            rule[1] = Integer.valueOf(entry.split("\\|")[1]);
-            rules.add(rule);
+        String input = FileReader.readAsString("5.txt");
+        String[] firstPart = input.split("\r\n\r\n")[0].split("\r\n");
+        List<Rule> rules = new ArrayList<>();
+        for (String entry : firstPart) {
+            String[] split = entry.split("\\|");
+            rules.add(new Rule(split[0], split[1]));
         }
-        Integer[][] prerequisites = rules.toArray(Integer[][]::new);
-        for (Integer[] incorrectPages : incorrect) {
-            int[] ordered = findOrder(incorrectPages, prerequisites);
-            result += ordered[ordered.length / 2];
-           adjacencyList = new HashMap<>();
-           visited = new ArrayList<>();
+
+        for (String[] pages : incorrectPagesList) {
+            String[] ordered = findOrder(pages, rules);
+            result += Integer.parseInt(ordered[ordered.length / 2]);
+            adjacencyList = new HashMap<>();
+            visited = new ArrayList<>();
             toVisit = new LinkedList<>();
         }
 
         return result;
     }
 
-    private  Map<Integer, List<Integer>> adjacencyList = new HashMap<>();
-    private Map<Integer, Integer> inDegree;
-    private  List<Integer> visited = new ArrayList<>();
-    private  Queue<Integer> toVisit = new LinkedList<>();
+    private Map<String, List<String>> adjacencyList = new HashMap<>();
+    private Map<String, Integer> inDegree = new HashMap<>();
+    private List<String> visited = new ArrayList<>();
+    private Queue<String> toVisit = new LinkedList<>();
 
-    public int[] findOrder(Integer[] pages, Integer[][] prerequisites) {
-        inDegree = new HashMap<Integer, Integer>();
-        for (int page : pages) {
+    // Kahn's
+    private String[] findOrder(String[] pages, List<Rule> rules) {
+        inDegree = new HashMap<>();
+        for (String page : pages) {
             inDegree.put(page, 0);
         }
 
-        for (int page : pages) {
+        for (String page : pages) {
             adjacencyList.put(page, new ArrayList<>());
         }
 
-        for (var prerequisite : prerequisites) {
-            if (!adjacencyList.containsKey(prerequisite[0])) continue;
-            if (!adjacencyList.containsKey(prerequisite[1])) continue;
-            adjacencyList.get(prerequisite[0]).add(prerequisite[1]);
-            inDegree.put(prerequisite[1], inDegree.get(prerequisite[1]) + 1);
+        for (var rule : rules) {
+            if (!adjacencyList.containsKey(rule.pre())) continue;
+            if (!adjacencyList.containsKey(rule.post())) continue;
+            adjacencyList.get(rule.pre()).add(rule.post());
+            inDegree.put(rule.post(), inDegree.get(rule.post()) + 1);
         }
 
         initializeQueue();
         while (!toVisit.isEmpty()) {
-            Integer nextVertex = toVisit.poll();
+            String nextVertex = toVisit.poll();
             visited.add(nextVertex);
 
             adjacencyList.get(nextVertex).stream()
@@ -115,15 +132,14 @@ public class Day05 {
                     .filter(i -> inDegree.get(i) == 0)
                     .forEach(toVisit::offer);
         }
-        int[] resultArray = visited.stream().mapToInt(x -> x).toArray();
-        return resultArray;
+        return visited.toArray(String[]::new);
     }
 
     private void initializeQueue() {
-        for (int page : inDegree.keySet()) {
+        for (String page : inDegree.keySet()) {
             if (inDegree.get(page) == 0) toVisit.offer(page);
         }
-
     }
 
+    private record Rule(String pre, String post) {}
 }

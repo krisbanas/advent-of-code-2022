@@ -10,104 +10,61 @@ import java.util.stream.Collectors;
 
 public class Day04 {
 
+    public static void main(String[] args) {
+        new Day04();
+    }
+
     public Day04() {
         System.out.println(part1());
+        System.out.println("should be: " + 2464);
         System.out.println(part2());
+        System.out.println("should be: " + 1982);
     }
 
     public Object part1() {
-        var input = FileReader.readAsString("Day4Input.txt");
-        var lines = input.split("\r\n");
-        List<String[]> grid = Arrays.stream(lines).map(x -> x.split("")).toList();
+        char[][] in = FileReader.readAsCharsGrid("4.txt");
+        int count = 0;
+        for (int i = 0; i < in.length; i++) {
+            for (int j = 0; j < in[i].length; j++) {
+                if (i < in.length - 4 && in[i][j] == 'X' && in[i + 1][j] == 'M' && in[i + 2][j] == 'A' && in[i + 3][j] == 'S')
+                    count++;
 
-        int xmas = 0;
-        int searched = 0;
+                if (i >= 3 && in[i][j] == 'X' && in[i - 1][j] == 'M' && in[i - 2][j] == 'A' && in[i - 3][j] == 'S')
+                    count++;
 
-        List<String> candidates = new ArrayList<>();
+                if (j < in[0].length - 4 && in[i][j] == 'X' && in[i][j + 1] == 'M' && in[i][j + 2] == 'A' && in[i][j + 3] == 'S')
+                    count++;
 
-        //forward
-        for (String[] row : grid) {
-            String toSearch = String.join("", row);
-            candidates.add(toSearch);
-            candidates.add(new StringBuilder(toSearch).reverse().toString());
-        }
+                if (j >= 3 && in[i][j] == 'X' && in[i][j - 1] == 'M' && in[i][j - 2] == 'A' && in[i][j - 3] == 'S')
+                    count++;
 
-        //top down
-        for (int i = 0; i < grid.getFirst().length; i++) {
-            int p = i;
-            String toSearch = grid.stream().map(ts -> ts[p]).collect(Collectors.joining());
+                if (i >= 3 && j >= 3 && in[i][j] == 'X' && in[i - 1][j - 1] == 'M' && in[i - 2][j - 2] == 'A' && in[i - 3][j - 3] == 'S')
+                    count++;
 
-            candidates.add(toSearch);
-            candidates.add(new StringBuilder(toSearch).reverse().toString());
-        }
+                if (i < in.length - 4 && j < in[0].length - 4 && in[i][j] == 'X' && in[i + 1][j + 1] == 'M' && in[i + 2][j + 2] == 'A' && in[i + 3][j + 3] == 'S')
+                    count++;
 
+                if (i < in.length - 4 && j >= 3 && in[i][j] == 'X' && in[i + 1][j - 1] == 'M' && in[i + 2][j - 2] == 'A' && in[i + 3][j - 3] == 'S')
+                    count++;
 
-        String res = "";
-        for (int i = 0; i < grid.size(); i++) {
-            for (int j = 0; j < grid.getFirst().length && j + i < grid.size(); j++) {
-                res += grid.get(j + i)[j];
-            }
-            candidates.add(res);
-            candidates.add(new StringBuilder(res).reverse().toString());
-            res = "";
-        }
+                if (i >= 3 && j < in[0].length - 4 && in[i][j] == 'X' && in[i - 1][j + 1] == 'M' && in[i - 2][j + 2] == 'A' && in[i - 3][j + 3] == 'S')
+                    count++;
 
-        // candidates - top
-        for (int i = 0; i < grid.size(); i++) {
-            if (i == 0) continue;
-            for (int j = 0; j < grid.getFirst().length && j + i < grid.getFirst().length; j++) {
-                res += grid.get(j)[i + j];
-            }
-            candidates.add(res);
-            candidates.add(new StringBuilder(res).reverse().toString());
-            res = "";
-        }
-
-        // reversed everything
-        grid = grid.reversed();
-        for (int i = 0; i < grid.size(); i++) {
-            Collections.reverse(Arrays.asList(grid.get(i)));
-        }
-
-        // once again
-        res = "";
-        for (int i = 0; i < grid.size(); i++) {
-            for (int j = 0; j < grid.getFirst().length && j + i < grid.size(); j++) {
-                res += grid.get(j + i)[j];
-            }
-            candidates.add(res);
-            candidates.add(new StringBuilder(res).reverse().toString());
-            res = "";
-        }
-
-        // candidates - top
-        for (int i = 0; i < grid.size(); i++) {
-            if (i == 0) continue;
-            for (int j = 0; j < grid.getFirst().length && j + i < grid.getFirst().length; j++) {
-                res += grid.get(j)[i + j];
-            }
-            candidates.add(res);
-            candidates.add(new StringBuilder(res).reverse().toString());
-            res = "";
-        }
-
-        System.out.println();
-
-        int pointer = 0;
-        for (String toSearch : candidates) {
-            String copy = toSearch;
-            while (copy.contains("XMAS")) {
-                xmas++;
-                copy = copy.replace("XMAS", "");
             }
         }
 
-        return xmas;
+        return count;
     }
 
     public Object part2() {
+        char[][] in = FileReader.readAsCharsGrid("4.txt");
+        int count = 0;
+        for (int i = 0; i < in.length; i++) {
+            for (int j = 0; j < in[i].length; j++) {
 
-        return null;
+            }
+        }
+        return count;
     }
 }
 

@@ -59,7 +59,7 @@ public class FileReader {
                 .collect(Collectors.toList());
     }
 
-    public static String[][] readAsStringGrid(String filename){
+    public static String[][] readAsStringGrid(String filename) {
         List<String> lines = null;
         try {
             lines = Files.readAllLines(Paths.get(RESOURCES_ROOT + filename).toAbsolutePath());
@@ -78,5 +78,31 @@ public class FileReader {
             resultGrid[j] = row;
         }
         return resultGrid;
+    }
+
+    public static char[][] readAsCharsGrid(String filename) {
+        List<String> lines = null;
+        try {
+            lines = Files.readAllLines(Paths.get(RESOURCES_ROOT + filename).toAbsolutePath());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Could not read file: " + filename);
+        }
+        char[][] resultGrid = new char[lines.size()][lines.getFirst().length()];
+        for (int j = 0; j < lines.size(); j++) {
+            char[] splitRow = lines.get(j).toCharArray();
+            resultGrid[j] = splitRow;
+        }
+        return resultGrid;
+    }
+
+    public static List<Long> readAsLongList(String filename) {
+        try {
+            return Files.readAllLines(Paths.get(RESOURCES_ROOT + filename).toAbsolutePath())
+                    .stream().mapToLong(Integer::valueOf)
+                    .boxed()
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
